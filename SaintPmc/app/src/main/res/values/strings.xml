@@ -1,0 +1,248 @@
+<resources>
+    <string name="app_name">圣享物控</string>
+
+    <string name="scan_text">将二维码放入框内, 即可自动扫描</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="scanCodeBureau">请输入或扫描局号</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="notifyTitle">提示！</string>
+    <string name="notifyMsg">应用即将退出</string>
+    <string name="loading">正在登录</string>
+    <string name="downworkorder">正在下载工单</string>
+    <string name="idtxthint">用户名</string>
+
+    <string name="pwdtxthint">密码</string>
+
+    <string name="loginbtntext">登录</string>
+    <string name="ip">210.22.164.146</string>
+    <string name="port">7013</string>
+    <string name="APN">APN类型:</string>
+    <!--<string name="app_name">开/关锁系统</string>  -->
+    <!-- <string name="app_name">新协议 开/关锁系统 SH160928001</string>  -->
+    <!--<string name="app_name_version">开/关锁系统V1.0.0</string>  -->
+    <string name="app_name_version">国家电网锁控系统</string>
+    <string name="app_name_set">3.修改APP显示名称;</string>
+    <string name="APP_version">APP版本:</string>
+    <string name="action_settings">Settings</string>
+    <string name="back">修改开锁码</string>
+    <string name="backgroundPicture">4.修改背景图片;</string>
+    <string name="baudRate">波特率:</string>
+    <string name="ble_not_supported">要求Android系统版本4.3以上;</string>
+    <string name="lock">开锁</string>
+    <string name="bluetoothName">设备名称:</string>
+    <string name="bluetoothNameSet">输入蓝牙设备名称:</string>
+    <string name="change">修改</string>
+    <string name="cancel">取消</string>
+    <string name="close_screw">关螺丝</string>
+    <string name="confirm">确定</string>
+    <string name="connectedDeviceName">已连接设备:</string>
+    <string name="connecting">连接中…</string>
+    <string name="reconnecting">非正常操作断开后,尝试自动重连…</string>
+    <string name="connected">已连接(成功);</string>
+    <string name="date">系统日期:</string>
+    <string name="dateButton">修改日期</string>
+    <string name="sheet_no_task">工单中没有任务</string>
+    <string name="disconnected">已断开(失败);</string>
+    <string name="disconnect">断开连接;</string>
+    <string name="old_sheet">准备下载工单</string>
+    <string name="disconnectedDeviceName">可用设备:</string>
+    <string name="download">下载</string>
+    <string name="downloadUpdate">更新下载权限:</string>
+    <string name="effective_days">有效天数:</string>
+    <string name="effective_days_unit">天;</string>
+    <string name="error_bluetooth_not_supported">不支持蓝牙通信;</string>
+    <string name="hello">Hello World, Socket_Android;</string>
+    <string name="hello_world">服务器返回数据:</string>
+    <string name="IMEI">手机序列号:</string>
+    <string name="iconPicture">5.修改图标图片;</string>
+    <string name="EditText01">请输入内容</string>
+    <string name="label_data">接收数据:</string>
+    <string name="label_received_count">接受次数:</string>
+    <string name="label_send_count">发送次数:</string>
+    <string name="label_device_address">设备地址:</string>
+    <string name="label_state">连接状态:</string>
+    <string name="lockNumber">输入锁号:</string>
+    <string name="lockPwd">输入开锁密码:</string>
+    <string name="login">登录</string>
+    <string name="logTitle">操作实时记录明细如下:</string>
+    <string name="no_data">No data</string>
+    <string name="bluetooth_log">通信记录:</string>
+    <string name="offset">偏移值:</string>
+    <string name="battery">电池电量:</string>
+    <string name="open_screw">开螺丝</string>
+    <string name="password">密码:</string>
+    <string name="passwordIn">输入权限密码:</string>
+    <string name="readLockNumber">读锁号(仅);</string>
+    <string name="inS00SerialNumber">输入掌机序列号:</string>
+    <string name="editS00SerialNumber">输入规范限制,英语或数字,长度小于20:</string>
+    <string name="S00HardwareVersion">硬件版本:</string>
+    <string name="S00SerialNumber">掌机序列号:</string>
+    <string name="S00SoftwareVersion">固件版本:</string>
+    <string name="save">保存</string>
+    <string name="screw">螺丝</string>
+    <string name="send_data">发送数据:</string>
+    <string name="serviceURL">服务器URL:</string>
+    <string name="set">设置</string>
+    <string name="set_value">设置值:</string>
+    <string name="setName">选择开锁方式:</string>
+    <string name="setParameter">设置参数:</string>
+    <string name="setS00Data">设置掌机;</string>
+    <string name="set_unlock_type">开锁方式:</string>
+    <string name="socketAddress">输入socket通信地址:</string>
+    <string name="socketPort">输入socket端口:</string>
+    <string name="startIAPButton">IAP启动下载</string>
+    <string name="TextView01">这里显示接受到服务器发来的信息</string>
+    <string name="time">系统时间:</string>
+    <string name="timeButton">修改时间</string>
+    <string name="title_devices">搜索蓝牙设备:</string>
+    <string name="unload">未上传开/关锁记录:</string>
+    <string name="unlockName">开锁方式:</string>
+    <string name="unknown_device">未知设备:</string>
+    <string name="unknown_deviceName">未命名设备</string>
+    <string name="unknown_characteristic">未知属性:</string>
+    <string name="unknown_service">未知(Unknown service):</string>
+    <string name="unlockAutoReconnectTwo">自动断开重连大小值开锁;</string>
+    <string name="unlockAutoReconnect">自动断开重连蓝牙;</string>
+    <string name="unlockContinue">连续开锁;</string>
+    <string name="unlockHandLockNumber">手动输入锁号开锁;</string>
+    <string name="unlockLogin">在线开锁(实时关联);</string>
+    <string name="unLockOperateName">选择下面操作:</string>
+    <string name="unlockSet">分类</string>
+    <string name="unlockUser">离线开锁(关联下载);</string>
+    <string name="unlockSheet">工单开锁(下载工单):</string>
+    <string name="user">用户</string>
+    <string name="user_download">离线关联锁具信息下载:</string>
+    <string name="userName">用户名:</string>
+    <string name="unlockOriginal">原值开锁(本地Json文件);</string>
+    <string name="unlockTwo">正负2开锁(本地Json文件);</string>
+    <string name="unlockThree">正负3开锁(本地Json文件);</string>
+    <string name="unlockFour">正负4开锁(本地Json文件);</string>
+    <string name="unlock_screw">开/关螺丝;</string>
+    <string name="unlock_valve">开/关阀门;</string>
+    <string name="valve">阀门</string>
+    <string name="wakeUp">掌机进入休眠状态,按下开/关锁键可唤醒掌机后再进行其他操作!</string>
+    <string name="well">井盖</string>
+    <string name="upload">上传</string>
+    <string name="well_pwd">打开密码如下:</string>
+    <string name="zero">0</string>
+    <string name="App_Sleep">掌机进入休眠状态,按下开/关锁键可唤醒掌机后再进行其他操作!</string>
+    <string name="App_WakeUp">掌机已唤醒!</string>
+    <string name="screw_open">开启</string>
+    <string name="screw_close">关闭</string>
+    <string name="menu_delete_record">清除掌机记录(不可恢复)</string>
+    <!-- CXQ 设置值，偏移值 -->
+    <string name="setvalue">设置值:</string>
+    <!-- Menu items -->
+    <string name="menu_scan">搜索(Scan)</string>
+    <string name="menu_stop">停止(Stop)</string>
+    <string name="menu_connect">建立连接(Connect)</string>
+    <string name="menu_disconnect">断开连接(Disconnect)</string>
+    <string name="menu_hand">手输锁号</string>
+    <string name="menu_send">下传掌机</string>
+    <string name="menu_set">设置掌机</string>
+    <string name="menu_upS00">升级固件(S00)</string>
+    <string name="menu_upload">上传记录</string>
+    <string name="menu_sheet_send">掌机授权</string>
+    <string name="menu_offline_send">用户授权</string>
+    <string name="menu_offline_location">导航</string>
+    <!-- APP中的用的 -->
+    <string name="default_device_id">default machine     </string>
+    <string name="set_device_id">请先设置掌机序列号!</string>
+    <string name="new_sheet">有工单来了</string>
+    <string name="new_sheet2">上传成功！</string>
+    <string name="download_error">下载出错</string>
+    <string name="download_ready">开始下传</string>
+    <string name="bigsmall_unlock">手动开锁,执行小值开锁</string>
+    <!-- 地图导航模块的string -->
+    <string name="start_title">示例代码</string>
+    <string name="base_function">基本功能</string>
+    <string name="hud_title">HUD显示</string>
+    <string name="extend_title">扩展功能</string>
+    <string name="extend_navi_navi">自定义导航</string>
+    <string name="navibar_title">路径规划</string>
+    <string name="navi_car">驾车</string>
+    <string name="navi_foot">步行</string>
+    <string name="start_hud_navi">HUD显示</string>
+    <string name="complex_function">综合展示</string>
+    <string name="navi_empty_car">"驾   车"</string>
+    <string name="navi_empty_foot">"步   行"</string>
+    <string name="navi_start">"起    点"</string>
+    <string name="navi_middle">途经点</string>
+    <string name="navi_end">"终    点"</string>
+    <string name="navi_strategy">"策    略"</string>
+    <string name="navi_route">路径规划</string>
+    <string name="navi_navi">模拟导航</string>
+    <string name="start_navi_navi">实时导航</string>
+    <string name="navi_strategy_speed">速度最快</string>
+    <string name="navi_strategy_cost">避免收费</string>
+    <string name="navi_strategy_distance">距离最短</string>
+    <string name="navi_strategy_nohighway">不走高速快速路</string>
+    <string name="navi_strategy_timenojam">时间最短且躲避拥堵</string>
+    <string name="navi_strategy_costnojam">避免收费且躲避拥堵</string>
+    <string name="theme_blue">经典蓝</string>
+    <string name="theme_pink">可爱粉</string>
+    <string name="theme_white">简约白</string>
+    <string name="setting">设置</string>
+    <string name="day">白天</string>
+    <string name="night">夜间</string>
+    <string name="yes">"  是  "</string>
+    <string name="no">"  否  "</string>
+    <string name="open">打开</string>
+    <string name="close">关闭</string>
+    <string name="daynightmode">"昼夜模式    "</string>
+    <string name="deviationrecalculation">"偏航重算    "</string>
+    <string name="jamrecalculation">"拥堵重算    "</string>
+    <string name="trafficbroadcast">"交通播报    "</string>
+    <string name="camerabroadcast">摄像头播报</string>
+    <string name="screenon">"屏幕常亮    "</string>
+    <string name="routeshow">线路展示</string>
+    <string name="tapmap">点击地图设置</string>
+    <string name="starttapmap">我的位置（可点击地图设置）</string>
+    <string name="walkdescription">步行状态不可用</string>
+    <string name="routeinfo">全程   --公里/--分钟    收费 --元</string>
+    <string name="routeinfo_1">全程 </string>
+    <string name="routeinfo_2">公里/</string>
+    <string name="routeinfo_3">"分钟    收费"</string>
+    <string name="routeinfo_4">元</string>
+    <string name="routeinfo_default">--</string>
+    <string name="app_id">输入您讯飞的appid</string>
+    <string name="mypoistion">我的位置</string>
+    <string name="mappoistion">地图点选</string>
+    <string name="positioninfo">位置信息</string>
+    <string-array name="preference_values_tts_role">
+        <item>xiaoyan</item>
+        <item>xiaoyu</item>
+        <item>vixy</item>
+        <item>vixq</item>
+        <item>vixf</item>
+        <item>vixm</item>
+        <item>vixl</item>
+        <item>vixr</item>
+        <item>vixyun</item>
+        <item>vixk</item>
+        <item>vixqa</item>
+        <item>vixying</item>
+        <item>vixx</item>
+        <item>vinn</item>
+        <item>vils</item>
+    </string-array>
+    <string name="preference_default_tts_role">xiaoyan</string>
+    <string name="preference_key_tts_speed">tts_speed</string>
+    <string name="preference_title_tts_speed">语速</string>
+    <string name="preference_default_tts_speed">50</string>
+    <string name="preference_dialog_title_tts_speed">选择语速</string>
+    <string name="preference_key_tts_volume">tts_volume</string>
+    <string name="preference_title_tts_volume">音量</string>
+    <string name="preference_default_tts_volume">50</string>
+    <string name="preference_dialog_title_tts_volume">选择音量</string>
+    <string name="preference_key_tts_pitch">tts_pitch</string>
+    <string name="preference_title_tts_pitch">语调</string>
+    <string name="preference_default_tts_pitch">50</string>
+    <string name="intell_bd_title">智能播报</string>
+    <string name="phone_no">+8613161502939</string>
+    <!--<string name="phone_no">+8615811096397</string>-->
+    <!--<string name="phone_no">+8615000701164</string>-->
+    <!--<string name="phone_no">+8615026461285</string>-->
+    <string name="personal_center">个人中心</string>
+</resources>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.saintsung.saintpmc">
+
+    <application
+        android:name="com.saintsung.saintpmc.MyApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name="com.saintsung.saintpmc.MainActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+
+
+        <service android:name="com.amap.api.location.APSService"></service>
+        <meta-data
+            android:name="com.amap.api.v2.apikey"
+            android:value="cd487121a7b6bf337ccfe32d9626667d" />
+
+        <activity android:name=".newTextListView" />
+        <activity
+            android:name=".loading.LoginActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".loading.SetIPaddress" />
+        <activity android:name=".location.BasicNaviActivity" />
+        <activity android:name="com.saintsung.saintpmc.msgintercept.TextActivity" />
+        <!-- 深圳的Activity 和 Service -->
+        <activity
+            android:name=".lock.DeviceScanActivity0"
+            android:exported="true" />
+        <activity android:name=".lock.LockSetActivity" />
+        <activity android:name=".lock.SetAllActivity" />
+        <activity android:name=".lock.SetActivity" />
+        <activity android:name=".lock.SetActivity0" />
+        <activity android:name=".lock.SocketActivity" />
+        <activity android:name=".lock.UpS00Activity" />
+        <activity android:name=".workorder.PicUpServiceActivity" />
+        <activity android:name=".workorder.WorkOrderDetailsPic" />
+        <activity android:name=".workorder.WorkOrderDetails" />
+        <activity android:name=".workorder.WorkOrderDetailsItem" />
+        <activity android:name=".workorder.WorkOrderDetails2" />
+        <activity android:name=".lock.NetworkConnect" />
+        <activity android:name=".lock.DeviceScanActivity" />
+        <activity android:name=".lock.DeviceControlActivity" />
+        <activity
+            android:name=".PersonalCenterActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".workorder.ScrapActivity" />
+
+        <service
+            android:name=".lock.BluetoothLeService"
+            android:enabled="true"></service>
+        <!-- wwh -->
+
+        <activity android:name=".lock.LockerProcessAtivity" />
+
+        <service
+            android:name=".lock.DeviceService"
+            android:enabled="true"></service>
+
+        <activity android:name=".workorder.PicWorkOrderActivity" />
+        <activity android:name="com.example.qr_codescan.MainActivity" />
+        <activity
+            android:name="com.example.qr_codescan.MipcaActivityCapture"
+            android:theme="@style/AppTheme.NoActionBar" />
+    </application>
+    <uses-permission android:name="android.permission.GET_TASKS" />
+    <!--   蓝牙权限  -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 地图权限 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <!-- 短信接收数据权限 -->
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <!-- 二维码扫描权限 -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
+</manifest>

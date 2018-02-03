@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_margin="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginLeft="10dp"
+        >
+        <AutoCompleteTextView
+            android:id="@+id/bureauNo"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:completionThreshold="4"
+            android:digits="0123456789"
+            android:maxLength="22"
+            android:layout_height="wrap_content"
+            android:hint="@string/scanCodeBureau"
+            />
+        <ImageButton
+            android:id="@+id/scanBureauNo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_crop_free_white_36dp"
+            />
+    </LinearLayout>
+    <ImageView
+        android:id="@+id/img"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_gravity="center"
+        />
+
+    <ImageButton
+        android:id="@+id/pic_photo"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:background="@drawable/pic_orderwork"
+        />
+    <Button
+        android:id="@+id/sum_pic"
+        android:layout_margin="15dp"
+        android:layout_gravity="bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="上传照片"
+        />
+</LinearLayout>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_camera"
+        android:icon="@drawable/ic_menu_camera"
+        android:title="拍照上传" />
+    <item
+        android:id="@+id/nav_slideshow"
+        android:icon="@drawable/ic_menu_slideshow"
+        android:title="安装向导" />
+    <item
+        android:id="@+id/nav_scrap"
+        android:icon="@drawable/ic_menu_scrap"
+        android:title="申请报废"
+        />
+    <item
+        android:id="@+id/nav_share"
+        android:icon="@drawable/ic_menu_share"
+        android:title="开锁" />
+    <item
+        android:id="@+id/nav_send"
+        android:icon="@drawable/ic_menu_send"
+        android:title="注销登录" />
+
+</menu>

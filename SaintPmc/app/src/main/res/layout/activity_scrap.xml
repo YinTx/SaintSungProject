@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <ListView
+        android:layout_margin="10dp"
+        android:id="@+id/mListView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        ></ListView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+       <Button
+           android:id="@+id/scrap_sub"
+           android:layout_width="0dp"
+           android:layout_weight="1"
+           android:layout_margin="10dp"
+           android:layout_height="wrap_content"
+           android:text="添加报废"
+           />
+        <Button
+            android:id="@+id/scrap_sumbit"
+            android:layout_margin="10dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="提交"
+            />
+    </LinearLayout>
+
+</LinearLayout>

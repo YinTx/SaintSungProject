@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/menu_refresh"
+		  android:title=""
+          android:checkable="false"
+          android:orderInCategory="1"
+          android:showAsAction="ifRoom"/>
+    
+    <item android:id="@+id/menu_connect"
+          android:title="@string/menu_connect"
+          android:orderInCategory="100"
+          android:showAsAction="ifRoom|withText"/>
+    
+    <item android:id="@+id/menu_disconnect"
+          android:title="@string/menu_disconnect"
+          android:orderInCategory="101"
+          android:showAsAction="ifRoom|withText"/>
+    
+    <item android:id="@+id/menu_hand"
+          android:title="@string/menu_hand"
+          android:orderInCategory="102"
+          android:showAsAction="ifRoom|withText"/>
+    
+    <item android:id="@+id/menu_set"
+          android:title="@string/menu_set"
+          android:orderInCategory="103"
+          android:showAsAction="ifRoom|withText"/>
+    
+    <item android:id="@+id/menu_sheet_send"
+          android:title="@string/menu_sheet_send"
+          android:orderInCategory="104"
+          android:showAsAction="ifRoom|withText"
+          />
+    
+    <item android:id="@+id/menu_offline_send"
+          android:title="@string/menu_offline_send"
+          android:orderInCategory="105"
+          android:showAsAction="ifRoom|withText"
+        
+          />
+     <item android:id="@+id/menu_offline_location"
+          android:title="@string/menu_offline_location"
+          android:orderInCategory="108"
+          android:showAsAction="ifRoom|withText"
+        
+          />
+        <item android:id="@+id/menu_delete_record"
+            android:title="@string/menu_delete_record"
+            android:orderInCategory="107"
+           android:showAsAction="ifRoom|withText"
+            />
+        
+    <item android:id="@+id/menu_upS00"
+          android:title="@string/menu_upS00"
+          android:orderInCategory="106"
+          android:showAsAction="ifRoom|withText"/>
+    
+    <item android:id="@+id/menu_back" 
+        android:title="@string/back" 
+        android:orderInCategory="109"
+        android:showAsAction="ifRoom|withText"
+         />
+    
+    <item android:id="@+id/menu_upHistory"
+          android:title="@string/menu_upload"
+          android:orderInCategory="107"
+          android:showAsAction="ifRoom|withText">
+    </item>
+    
+</menu>

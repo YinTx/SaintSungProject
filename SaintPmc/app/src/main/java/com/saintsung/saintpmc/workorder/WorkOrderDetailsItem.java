@@ -1,0 +1,62 @@
+package com.saintsung.saintpmc.workorder;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ImageButton;
+import android.widget.ListView;
+
+import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.raizlabs.android.dbflow.sql.language.Select;
+import com.saintsung.saintpmc.R;
+import com.saintsung.saintpmc.configuration.BaseActivity;
+import com.saintsung.saintpmc.location.BasicNaviActivity;
+import com.saintsung.saintpmc.orderdatabase.WorkOrderDetailsBean;
+import com.saintsung.saintpmc.orderdatabase.WorkOrderDetailsBean$Table;
+
+
+import java.util.List;
+
+import static com.saintsung.saintpmc.MainActivity.LatAndlon;
+
+/**
+ * Created by YinTxLz on 2017/5/24.
+ */
+
+public class WorkOrderDetailsItem extends BaseActivity {
+    private ImageButton myBluck;
+    private ListView myList;
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_workorderdetails);
+        myBluck= (ImageButton) findViewById(R.id.myBluck);
+        myList= (ListView) findViewById(R.id.workorderdetails);
+        myBluck.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        String str=getIntent().getStringExtra("workOrder");
+        final List<WorkOrderDetailsBean> peoples = new Select().from(WorkOrderDetailsBean.class).where(Condition.column(WorkOrderDetailsBean$Table.WORKORDERNUMBER).is(str)).queryList();
+        mDetailsAdapterItem2 adapter=new mDetailsAdapterItem2(this,peoples);
+        myList.setAdapter(adapter);
+        myList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                double[] Point={ LatAndlon.latitude,LatAndlon.longitude};
+                double[] end={Double.parseDouble(peoples.get(position).latitude),Double.parseDouble(peoples.get(position).longitude)};
+//                    double[] end={31.236326260971527,121.48226139034274};
+                Intent intent = new Intent(WorkOrderDetailsItem.this, BasicNaviActivity.class);
+                intent.putExtra("Point",Point);
+                intent.putExtra("end",end);
+                startActivity(intent);
+            }
+        });
+    }
+
+}

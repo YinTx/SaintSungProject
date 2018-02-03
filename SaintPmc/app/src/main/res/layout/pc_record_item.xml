@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_margin="10dp"
+    android:layout_height="match_parent">
+    <TextView
+        android:id="@+id/work_orderNumber"
+        android:layout_width="0dp"
+        android:layout_gravity="center"
+        android:layout_margin="6dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:padding="6dp"
+        android:text="工单编号:"
+        />
+    <!--<Button-->
+        <!--android:id="@+id/down_workorder2"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="chakan 工单"-->
+        <!--/>-->
+    <!--<Button-->
+        <!--android:id="@+id/down_workorder"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="下传工单"-->
+        <!--/>-->
+</LinearLayout>
