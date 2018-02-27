@@ -8,7 +8,6 @@ import java.util.List;
 
 public class LockLogUpServiceBean {
     private String optCode;
-    private String optUserNumber;
     private List<LockLogBean> data;
     private String sign;
     private String version;
@@ -45,14 +44,6 @@ public class LockLogUpServiceBean {
 
     public void setOptCode(String optCode) {
         this.optCode = optCode;
-    }
-
-    public String getOptUserNumber() {
-        return optUserNumber;
-    }
-
-    public void setOptUserNumber(String optUserNumber) {
-        this.optUserNumber = optUserNumber;
     }
 
     public List<LockLogBean> getData() {

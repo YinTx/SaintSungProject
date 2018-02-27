@@ -106,6 +106,8 @@ import com.saintsung.saintpmc.orderdatabase.LstElecUserMeteringBean;
 import com.saintsung.saintpmc.orderdatabase.LstLookBean;
 
 import com.saintsung.saintpmc.orderdatabase.WorkOrderBean;
+import com.saintsung.saintpmc.orderdatabase.WorkOrderControData;
+import com.saintsung.saintpmc.orderdatabase.WorkOrderControData$Table;
 import com.saintsung.saintpmc.orderdatabase.WorkOrderDetailsBean;
 import com.saintsung.saintpmc.tool.DataProcess;
 import com.saintsung.saintpmc.tool.ToastUtil;
@@ -117,6 +119,7 @@ import com.saintsung.saintpmc.workorder.WorkOrderDetailsPic;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -263,6 +266,12 @@ public class MainActivity extends CheckPermissionsActivity
         initMap(savedInstanceState);
         //深圳蓝牙模块初始化
         initBlue();
+        initDataBase();
+        MyThread4("DIC_LOCK_SITE", "0001");
+//        sHA1(this);
+    }
+
+    private void initDataBase() {
         List<DicLockSiteBean> dicLockSiteBeen = new Select().from(DicLockSiteBean.class).queryList();
         for (DicLockSiteBean student : dicLockSiteBeen) {
             student.delete();
@@ -271,10 +280,17 @@ public class MainActivity extends CheckPermissionsActivity
         for (LockInformation student : lockInformations) {
             student.delete();
         }
-        MyThread4("DIC_LOCK_SITE", "0001");
-//        sHA1(this);
-    }
+        List<WorkOrderControData> workOrderControData = new Select().from(WorkOrderControData.class).queryList();
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        for (WorkOrderControData workOrderControData1 : workOrderControData) {
+            Date date1 = DataProcess.getTimeAdd(workOrderControData1.workTime, 1);
+            if (!DataProcess.isInDate(workOrderControData1.workTime, sdf.format(date), sdf.format(date1)))
+                workOrderControData1.delete();
 
+        }
+
+    }
 
     class MyTask_Download extends AsyncTask<String, String, String> {
 
@@ -1142,6 +1158,7 @@ public class MainActivity extends CheckPermissionsActivity
     LstElecUserMeteringBean lstElecUserMeteringBean;
     DicLockSiteBean dicLockSiteBean = new DicLockSiteBean();
     int con = 0;
+
     private void initView() {
         RetrofitRxAndroidHttp retrofitRxAndroidHttp = new RetrofitRxAndroidHttp();
         List<DoorAndMeterDataBase> doorAndMeterDataBase = new Select().from(DoorAndMeterDataBase.class).queryList();
@@ -1172,7 +1189,7 @@ public class MainActivity extends CheckPermissionsActivity
             public void onClick(View v) {
                 if (con == 5) {
                     startActivity(new Intent(MainActivity.this, TextActivity.class));
-                }else{
+                } else {
                     con++;
                 }
                 if (LatAndlon == null) {
@@ -1208,8 +1225,6 @@ public class MainActivity extends CheckPermissionsActivity
         public void call(ResponseBody responseBody) {
             try {
                 dataProcess(responseBody.string());
-//                Log.e("TAG","====="+);
-//                dataProcessing(responseBody.string());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -1230,7 +1245,7 @@ public class MainActivity extends CheckPermissionsActivity
     private void dataProcess(String string) {
         Log.e("TAG", "" + string);
         Gson gson = new Gson();
-        QueryBureauNumberBean2 queryBureauNumberBean2 = gson.fromJson(string,QueryBureauNumberBean2.class);
+        QueryBureauNumberBean2 queryBureauNumberBean2 = gson.fromJson(string, QueryBureauNumberBean2.class);
         if (queryBureauNumberBean2.getResult().equals("0000")) {
             DoorAndMeterDataBase doorAndMeterDataBase = new Select().from(DoorAndMeterDataBase.class).where(Condition.column(DoorAndMeterDataBase$Table.EDITBUREAUNO).is(queryBureauNumberBean2.getUserNumber())).querySingle();
             doorAndMeterDataBase.delete();
@@ -1246,6 +1261,23 @@ public class MainActivity extends CheckPermissionsActivity
         LockInformation lockInformation = new LockInformation();
         for (int i = 0; i < workOrderBean.getData().size(); i++) {
             List<WorkOrderDataItemBean> workOrderDataItemBeanList = workOrderBean.getData().get(i).getLockInfos();
+            WorkOrderControData workOrderControData = new WorkOrderControData();
+            WorkOrderControData workOrderControData1 = new Select().from(WorkOrderControData.class).where(Condition.column(WorkOrderControData$Table.WORKORDERNUMBER).is(workOrderBean.getData().get(i).getWorkOrderNo())).querySingle();
+            if (workOrderControData1 == null) {
+                workOrderControData.workOrderNumber = workOrderBean.getData().get(i).getWorkOrderNo();
+                workOrderControData.workOrderState = workOrderBean.getData().get(i).getWorkState();
+                Date date = new Date();
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                workOrderControData.workTime = sdf.format(date);
+                workOrderControData.insert();
+            } else {
+                workOrderControData.workOrderNumber = workOrderBean.getData().get(i).getWorkOrderNo();
+                workOrderControData.workOrderState = workOrderBean.getData().get(i).getWorkState();
+                Date date = new Date();
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                workOrderControData.workTime = sdf.format(date);
+                workOrderControData.update();
+            }
             for (int j = 0; j < workOrderDataItemBeanList.size(); j++) {
                 lockInformation.lockNo = workOrderDataItemBeanList.get(j).getLockNo();
                 lockInformation.assetno = workOrderDataItemBeanList.get(j).getAssetno();
@@ -1513,70 +1545,6 @@ public class MainActivity extends CheckPermissionsActivity
         dialog.show();
     }
 
-    private Uri SMS_INBOX = Uri.parse("content://sms/");
-
-//    public String getSmsFromPhone() {
-//        final String SMS_URI_ALL = "content://sms/";
-//        final String SMS_URI_INBOX = "content://sms/inbox";
-//        final String SMS_URI_SEND = "content://sms/sent";
-//        final String SMS_URI_DRAFT = "content://sms/draft";
-//        StringBuilder smsBuilder = new StringBuilder();
-//        try {
-//            ContentResolver cr = getContentResolver();
-//            String[] projection = new String[]{"_id", "address", "person",
-//                    "body", "date", "type"};
-//            Uri uri = Uri.parse(SMS_URI_INBOX);
-//            Cursor cur = cr.query(uri, projection, "address=?", new String[]{"+8613161502939"}, "date desc");
-//            if (cur.moveToFirst()) {
-//                String name;
-//                String phoneNumber;
-//                String smsbody;
-//                String date;
-//                String type;
-//                int nameColumn = cur.getColumnIndex("person");
-//                int phoneNumberColumn = cur.getColumnIndex("address");
-//                int smsbodyColumn = cur.getColumnIndex("body");
-//                int dateColumn = cur.getColumnIndex("date");
-//                int typeColumn = cur.getColumnIndex("type");
-//                //ewf129916b
-//                do {
-//                    name = cur.getString(nameColumn);
-//                    phoneNumber = cur.getString(phoneNumberColumn);
-//                    smsbody = cur.getString(smsbodyColumn);
-//
-//                    SimpleDateFormat dateFormat = new SimpleDateFormat(
-//                            "yyyy-MM-dd hh:mm:ss");
-//                    Date d = new Date(Long.parseLong(cur.getString(dateColumn)));
-//                    date = dateFormat.format(d);
-//
-//                    int typeId = cur.getInt(typeColumn);
-//                    if (typeId == 1) {
-//                        type = "接收";
-//                    } else if (typeId == 2) {
-//                        type = "发送";
-//                    } else {
-//                        type = "";
-//                    }
-//                    smsBuilder.append(name + ",");
-//                    smsBuilder.append(phoneNumber + ",");
-//                    smsBuilder.append(smsbody + ",");
-//                    smsBuilder.append(date + ",");
-//                    smsBuilder.append(type);
-//                    smsBuilder.append(";");
-//                    if (smsbody == null) smsbody = "";
-//                } while (cur.moveToNext());
-//            } else {
-//                smsBuilder.append("");
-//            }
-//        } catch (SQLiteException ex) {
-//            Log.d("SQLiteException in getSmsIn" +
-//                    "" +
-//                    "" +
-//                    "" +
-//                    "Phone", ex.getMessage());
-//        }
-//        return smsBuilder.toString();
-//    }
 }
 
 

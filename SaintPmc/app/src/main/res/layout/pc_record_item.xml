@@ -15,6 +15,15 @@
         android:padding="6dp"
         android:text="工单编号:"
         />
+    <TextView
+        android:visibility="invisible"
+        android:id="@+id/newWorkOrder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textColor="@color/colorPrimary"
+        android:text="最新工单"
+        />
     <!--<Button-->
         <!--android:id="@+id/down_workorder2"-->
         <!--android:layout_width="wrap_content"-->

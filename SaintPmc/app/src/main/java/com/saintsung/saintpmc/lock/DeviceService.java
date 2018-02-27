@@ -3168,6 +3168,8 @@ public class DeviceService extends Service implements DeviceClient, CommomInterf
         lockLogBean.setResultId(type);
         lockLogBean.setDateTime(data);
         lockLogBean.setLockNumber(number);
+        lockLogBean.setOptUserNumber(MyApplication.getUserId());
+        lockLogBean.setKeyNumber(mAddres);
         return lockLogBean;
     }
 
@@ -3175,10 +3177,9 @@ public class DeviceService extends Service implements DeviceClient, CommomInterf
         Gson gson = new Gson();
         LockLogUpServiceBean lockLogUpServiceBean = new LockLogUpServiceBean();
         lockLogUpServiceBean.setOptCode("LockLogUpload");
-        lockLogUpServiceBean.setOptUserNumber(MyApplication.getUserId());
         lockLogUpServiceBean.setData(lockLogBeans);
         String dataStr=gson.toJson(lockLogUpServiceBean.getData());
-        lockLogUpServiceBean.setSign(MD5.toMD5(lockLogUpServiceBean.getOptCode() + lockLogUpServiceBean.getOptUserNumber() + dataStr));
+        lockLogUpServiceBean.setSign(MD5.toMD5(lockLogUpServiceBean.getOptCode()+ dataStr));
         return gson.toJson(lockLogUpServiceBean);
     }
 

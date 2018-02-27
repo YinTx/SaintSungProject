@@ -7,16 +7,16 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 /**
- * Created by XLzY on 2018/1/6.
+ * Created by EvanShu on 2018/2/3.
  */
 @ModelContainer
 @Table(databaseName = DBFlowDatabase.NAME)
-public class DicLockSiteBean extends BaseModel {
+public class WorkOrderControData extends BaseModel {
+    @Column
     @PrimaryKey
+    public String workOrderNumber;
     @Column
-    public String id;
+    public String workOrderState;
     @Column
-    public String siteName;
-    @Column
-    public String siteCode;
+    public String workTime;
 }

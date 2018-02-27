@@ -4,20 +4,16 @@ package com.saintsung.saintpmc.tool;
 import android.os.Build;
 
 import com.saintsung.saintpmc.configuration.MD5;
-import com.saintsung.saintpmc.orderdatabase.LstElecUserMeteringBean;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * Created by Administrator on 2016/4/8.
@@ -122,6 +118,7 @@ public class DataProcess {
 
     /**
      * 将图片内容解析成字节数组.
+     *
      * @param
      * @param inStream
      * @return byte[]
@@ -166,10 +163,18 @@ public class DataProcess {
      */
     public static boolean isInDate(String date, String strDateBegin,
                                    String strDateEnd) {
-        long starDate = Long.parseLong(strDateBegin);
-        long newDate = Long.parseLong(date);
-        long endDate = Long.parseLong(strDateEnd);
-        if (starDate < newDate && newDate < endDate) {
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date starDate = null;
+        Date newDate=null;
+        Date endDate=null;
+        try {
+            starDate = sdf.parse(strDateBegin);
+             newDate = sdf.parse(date);
+            endDate= sdf.parse(strDateEnd);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        if (newDate.before(starDate) && endDate.after(endDate) ) {
             return true;
         } else {
             return false;
@@ -218,7 +223,7 @@ public class DataProcess {
      * @return boolean    返回类型
      * @throws
      * @Title: isInDate
-     * @Description: 判断一个时间段（YYYY-MM-DD）是否在一个区间
+     * @Description: 判断一个时间段（yyyy-MM-dd HH:mm:ss）是否在一个区间
      */
     public static boolean isInDate(Date date, String strDateBegin, String strDateEnd) {
         Date tempDateBegin = null;
@@ -226,9 +231,9 @@ public class DataProcess {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
         String strDate = sdf.format(date);   //2017-04-11
         try {
-            tempDateBegin= sdf.parse(strDateBegin);
-            tempDateEnd=sdf.parse(strDateEnd);
-            date=sdf.parse(strDate);
+            tempDateBegin = sdf.parse(strDateBegin);
+            tempDateEnd = sdf.parse(strDateEnd);
+            date = sdf.parse(strDate);
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -237,5 +242,26 @@ public class DataProcess {
         } else {
             return false;
         }
+    }
+
+    /**
+     * 传入时间，在传入的时间上增加 upData 月
+     * 格式必须为yyyy-MM-dd HH:mm:ss
+     * @param initData 要增加时间的初始时间
+     * @param upData 需要增加的月份
+     * @return
+     */
+    public static Date getTimeAdd(String initData, int upData) {
+        Date newTime = null;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(sdf.parse(initData));
+            calendar.add(Calendar.MINUTE, upData);
+            newTime = calendar.getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return newTime;
     }
 }
