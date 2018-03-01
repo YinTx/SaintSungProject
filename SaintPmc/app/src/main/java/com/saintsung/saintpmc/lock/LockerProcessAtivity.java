@@ -55,6 +55,8 @@ import com.saintsung.saintpmc.R;
 import com.saintsung.saintpmc.asynctask.RetrofitRxAndroidHttp;
 import com.saintsung.saintpmc.bean.WorkOrderDataBean;
 import com.saintsung.saintpmc.bean.WorkOrderDataItemBean;
+import com.saintsung.saintpmc.bean.WorkOrderItemBean;
+import com.saintsung.saintpmc.bean.WorkOrderUpServiceBean;
 import com.saintsung.saintpmc.configuration.configuration;
 import com.saintsung.saintpmc.location.mPcRecordAdapter;
 import com.saintsung.saintpmc.orderdatabase.LockInformation;
@@ -73,6 +75,7 @@ import rx.functions.Action1;
 
 import static com.saintsung.saintpmc.lock.DeviceScanActivity.disconnect;
 import static com.saintsung.saintpmc.MainActivity.connect_state;
+import static com.saintsung.saintpmc.tool.DataProcess.getSystemTime;
 import static com.saintsung.saintpmc.tool.ToastUtil.isNetworkAvailable;
 
 public class LockerProcessAtivity extends AppCompatActivity {
@@ -220,6 +223,7 @@ public class LockerProcessAtivity extends AppCompatActivity {
                 newWorkOrder = (TextView) view.findViewById(R.id.newWorkOrder);
                 newWorkOrder.setVisibility(View.VISIBLE);
                 newWorkOrder.setText("进行工单");
+                mPcRecordAdapter.clearView(position);
                 TextView work_orderNumber = (TextView) view.findViewById(R.id.work_orderNumber);
                 WorkOrderControData workOrderControData = new Select().from(WorkOrderControData.class).where(Condition.column(WorkOrderControData$Table.WORKORDERNUMBER).is(work_orderNumber.getText().toString())).querySingle();
                 workOrderControData.workOrderState = "3";
@@ -254,11 +258,28 @@ public class LockerProcessAtivity extends AppCompatActivity {
         workOrderBean.setSign(sign);
         return gson.toJson(workOrderBean);
     }
+    private Action1<ResponseBody> action2 = new Action1<ResponseBody>() {
+
+        @Override
+        public void call(ResponseBody responseBody) {
+            layout.setRefreshing(false);
+            try {
+                dataProcess(responseBody.string());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
+    private void dataProcess(String string) {
+        Log.e("TAG", "" + string);
+    }
 
     private Action1<ResponseBody> action1 = new Action1<ResponseBody>() {
 
         @Override
         public void call(ResponseBody responseBody) {
+            layout.setRefreshing(false);
             try {
                 dataProcessing(responseBody.string());
             } catch (IOException e) {
@@ -266,22 +287,21 @@ public class LockerProcessAtivity extends AppCompatActivity {
             }
         }
     };
-
     private void dataProcessing(String string) {
         Log.e("TAG", "" + string);
         Gson gson = new Gson();
         workOrderBean = gson.fromJson(string, com.saintsung.saintpmc.bean.WorkOrderBean.class);
         MyApplication.setWorkOrderBean(workOrderBean);
         mPcRecordAdapter.list = workOrderBean;
+        RetrofitRxAndroidHttp retrofitRxAndroidHttp=new RetrofitRxAndroidHttp();
+        retrofitRxAndroidHttp.serviceConnect(MyApplication.getUrl(),getUpService(workOrderBean),action2);
         mPcRecordAdapter.notifyDataSetChanged();
-        layout.setRefreshing(false);
         List<LockInformation> lockInformations = new Select().from(LockInformation.class).queryList();
         for (LockInformation student : lockInformations) {
             student.delete();
         }
         LockInformation lockInformation = new LockInformation();
         for (int i = 0; i < workOrderBean.getData().size(); i++) {
-
             List<WorkOrderDataItemBean> workOrderDataItemBeanList = workOrderBean.getData().get(i).getLockInfos();
             WorkOrderControData workOrderControData = new WorkOrderControData();
             WorkOrderControData workOrderControData1 = new Select().from(WorkOrderControData.class).where(Condition.column(WorkOrderControData$Table.WORKORDERNUMBER).is(workOrderBean.getData().get(i).getWorkOrderNo())).querySingle();
@@ -314,6 +334,23 @@ public class LockerProcessAtivity extends AppCompatActivity {
             }
         }
 
+    }
+
+    private String getUpService(com.saintsung.saintpmc.bean.WorkOrderBean workOrderBean) {
+        Gson gson=new Gson();
+        WorkOrderUpServiceBean workOrderUpServiceBean=new WorkOrderUpServiceBean();
+        List<WorkOrderItemBean> orderItemBeanList=new ArrayList<>();
+        workOrderUpServiceBean.setOptCode("WorkOrderResult");
+        for(WorkOrderDataBean workOrderBean1:workOrderBean.getData()){
+            WorkOrderItemBean workOrderItemBean=new WorkOrderItemBean();
+            workOrderItemBean.setWorkOrderNo(workOrderBean1.getWorkOrderNo());
+            workOrderItemBean.setOptTime(getSystemTime());
+            workOrderItemBean.setOptType("0001");
+            orderItemBeanList.add(workOrderItemBean);
+        }
+        workOrderUpServiceBean.setData(orderItemBeanList);
+        workOrderUpServiceBean.setSign(MD5.toMD5(workOrderUpServiceBean.getOptCode()+gson.toJson(workOrderUpServiceBean.getData())));
+        return gson.toJson(workOrderUpServiceBean);
     }
 
     private Dialog mLoginingDlg;

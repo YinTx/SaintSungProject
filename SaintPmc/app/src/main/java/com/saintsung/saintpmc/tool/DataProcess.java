@@ -1,6 +1,7 @@
 package com.saintsung.saintpmc.tool;
 
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 
 import com.saintsung.saintpmc.configuration.MD5;
@@ -251,6 +252,7 @@ public class DataProcess {
      * @param upData 需要增加的月份
      * @return
      */
+    @SuppressLint("WrongConstant")
     public static Date getTimeAdd(String initData, int upData) {
         Date newTime = null;
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -263,5 +265,10 @@ public class DataProcess {
             e.printStackTrace();
         }
         return newTime;
+    }
+    public static String getSystemTime(){
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date=new Date(System.currentTimeMillis());
+        return sdf.format(date);
     }
 }

@@ -292,71 +292,6 @@ public class MainActivity extends CheckPermissionsActivity
 
     }
 
-    class MyTask_Download extends AsyncTask<String, String, String> {
-
-        @Override
-        protected String doInBackground(String... arg0) {
-            // TODO Auto-generated method stub
-            // 连接服务器,发送开/关锁记录信息.
-            SocketConnect socketConnect = new SocketConnect();
-            responsePacket = socketConnect.sendDate(arg0[0]);
-            return responsePacket;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            // TODO Auto-generated method stub
-            super.onPostExecute(result);
-            if (result.substring(10, 11).equals("0")) {
-                Toast.makeText(MainActivity.this, "获取工单失败", Toast.LENGTH_LONG).show();
-            } else {
-                if (result.length() > 47) {
-                    String workNo = result.substring(15, 31);
-                    String str_start_time = result.substring(31, 43);
-                    String str_end_time = result.substring(43, 55);
-                    MyThread2(workNo, result.substring(55, 59), str_start_time, str_end_time);
-                } else {
-                    Toast.makeText(MainActivity.this, "工单中没有任务", Toast.LENGTH_LONG).show();
-                }
-            }
-        }
-    }
-
-    private WorkOrderDetailsBean workOrderForSqlite(String result, String workNo, String starTime, String endTime, WorkOrderDetailsBean workOrderDetailsBean) {
-        if (result.substring(10, 11).equals("1")) {
-            result = result.substring(35, result.length() - 32);
-
-            for (int i = 0; i < result.length() / 56; i++) {
-                workOrderDetailsBean.workOrderNumber = workNo;
-                workOrderDetailsBean.lookNumber = result.substring(i * 56, i * 56 + 9);
-                workOrderDetailsBean.openLookNumber = result.substring(i * 56 + 9, i * 56 + 24);
-                workOrderDetailsBean.deviceType = result.substring(i * 56 + 24, i * 56 + 28);
-                workOrderDetailsBean.longitude = result.substring(i * 56 + 28, i * 56 + 42);
-                workOrderDetailsBean.latitude = result.substring(i * 56 + 42, i * 56 + 56);
-                workOrderDetailsBean.insert();
-            }
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-            Date curDate = new Date(System.currentTimeMillis());// 获取当前时间
-            String systemTime = formatter.format(curDate);
-            MyThread3(workNo, systemTime, "0001");
-        } else {
-            Toast.makeText(MainActivity.this, "获取工单失败", Toast.LENGTH_LONG).show();
-        }
-        final List<WorkOrderDetailsBean> peoples = new Select().from(WorkOrderDetailsBean.class).queryList();
-        return workOrderDetailsBean;
-    }
-
-
-    private void MyThread5(final String str, int i) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                com.saintsung.saintpmc.asynctask.SocketConnect socketConnect = new com.saintsung.saintpmc.asynctask.SocketConnect();
-                String str1 = CommonResources.createRequestPacket(str);
-                String result = socketConnect.sendDate(str1);
-            }
-        }).start();
-    }
 
     private void MyThread() {
         new Thread(new Runnable() {
@@ -369,42 +304,6 @@ public class MainActivity extends CheckPermissionsActivity
             }
         }).start();
     }
-
-    private void MyThread2(final String workNo, final String res, final String starTime, final String endTime) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                WorkOrderDetailsBean workOrdeDetailsrBean = new WorkOrderDetailsBean();
-                WorkOrderBean workOrderBean = new WorkOrderBean();
-                workOrderBean.workOrderNumber = workNo;
-                workOrderBean.workOrderState = "0";
-                workOrderBean.starTime = starTime;
-                workOrderBean.endTime = endTime;
-                workOrderBean.insert();
-                for (int i = 1; i <= Integer.parseInt(res); i++) {
-                    String str = "L013" + userId + MainActivity.IMEI + workNo + DataProcess.ComplementZeor(i + "", 4);
-                    str = CommonResources.createRequestPacket(str);
-                    com.saintsung.saintpmc.asynctask.SocketConnect socketConnect = new com.saintsung.saintpmc.asynctask.SocketConnect();
-                    String result = socketConnect.sendDate(str);
-                    workOrdeDetailsrBean = workOrderForSqlite(result, workNo, starTime, endTime, workOrdeDetailsrBean);
-                }
-            }
-        }).start();
-    }
-
-    private void MyThread3(final String workNo, final String time, final String no) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String str = "L012" + MainActivity.IMEI + workNo + time + no;
-                str = CommonResources.createRequestPacket(str);
-                com.saintsung.saintpmc.asynctask.SocketConnect socketConnect = new com.saintsung.saintpmc.asynctask.SocketConnect();
-                String result = socketConnect.sendDate(str);
-            }
-        }).start();
-    }
-
     private void MyThread4(final String dbtable, final String packet) {
         new Thread(new Runnable() {
             @Override
@@ -892,162 +791,6 @@ public class MainActivity extends CheckPermissionsActivity
         dialog.show();//显示一把
     }
 
-    void checkDownoad() {
-        //get userId
-        request = download_paceket_num_serviceId + userId + MainActivity.IMEI;
-        //打包请求
-        string = CommonResources.createRequestPacket(request);
-        dialogDownload2();
-    }
-
-    void dialogDownload2() {
-        //对话框   Builder是AlertDialog的静态内部类
-        Dialog dialog = new AlertDialog.Builder(this)
-                //设置对话框的标题
-                .setTitle("用户下载离线关联锁具信息提示:")
-                //设置对话框要显示的消息
-                .setMessage("确定要下载用户关联锁具信息(离线)么?")
-                //给对话框来个按钮 叫“确定” ，并且设置监听器 这种写法也真是有些BT
-                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                    //点击 "确定"按钮之后要执行的操作就写在这里
-                    public void onClick(DialogInterface dialog, int which) {
-                        //验证网络连接
-                        flag = NetworkConnect.checkNet(getApplicationContext());
-                        if (flag) {
-                            new AsyncTaskUserDownload().execute("");
-                        } else {
-                            Toast.makeText(getBaseContext(), "网络断开连接,联网后再进行其他操作!", Toast.LENGTH_LONG).show();
-                        }
-                    }
-                }).setNeutralButton("取消", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        dialog.cancel();
-                    }
-                }).create();//创建按钮
-        dialog.show();//显示一把
-    }
-
-    //UI子线程
-    class AsyncTaskUserDownload extends AsyncTask<String, String, String> {
-        @SuppressWarnings("deprecation")
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            //open the dialog before the file was downloaded(点击之后,下载执行之前,设置进度条可见)
-            showDialog(DIALOG_DOWNLOAD_PROGRESS);
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            //delete before userDownload.txt
-            fileStream.fileStream(FileStream.userDownload, FileStream.delete, null);
-            //将拆分后的服务器数据直接写入本地文件
-            SocketConnect socketConnect = new SocketConnect();
-            responsePacket = socketConnect.sendDate(string);                        //请求包的个数
-            if (responsePacket.startsWith(download_paceket_num_serviceId, 6)) {    //L005
-                commandPacker.decodeResultFlag(responsePacket);
-                //initialize count
-                if (CommandPacker.succ_flag) {
-                    step = 1;
-                    count = Integer.parseInt(responsePacket.substring(15, 19));
-                    for (int countPackage = 1; countPackage <= count; countPackage++) {
-
-                        request = download_by_sub_packet_serviceId + userId + MainActivity.IMEI + CommonResources.getleftFill0Str(String.valueOf(countPackage), sendCount);        //L006
-                        //打包请求
-                        string = CommonResources.createRequestPacket(request);
-                        //连接服务器,发送下载请求.
-                        responsePacket = socketConnect.sendDate(string);
-                        Log.d("responsePacket", "responsePacket" + responsePacket);
-                        //判断执行
-                        if (responsePacket.startsWith(download_by_sub_packet_serviceId, 6) && responsePacket.length() > 51) {    //请求数据包
-                            //拆分服务器返回数据
-                            commandPacker.decodeResultFlag(responsePacket);
-                            receivedArray = responsePacket.getBytes();
-                            length = receivedArray.length - 51;
-                            byteArray = new byte[length];
-                            System.arraycopy(receivedArray, 19, byteArray, 0, length);
-                            //新协议加锁类型由36变成40一个锁信息
-                            //"004045 L011 1000 0000 1 000000006000000000000000000000000000 0001
-                            int lock_info_length = 36 + 4;
-                            //拆出锁号
-                            for (int i = 0; i < byteArray.length / lock_info_length; i++) {
-                                System.arraycopy(byteArray, i * lock_info_length, lockArray, 0, lockArray.length);
-                                lock = new String(lockArray);
-                                System.arraycopy(byteArray, i * lock_info_length + 21, pwdArray, 0, pwdArray.length);
-                                pwd = new String(pwdArray);
-                                System.arraycopy(byteArray, i * lock_info_length + 36, lockTypeArray, 0, lockTypeArray.length);
-                                lockType = new String(lockTypeArray);
-                                string = lock + ":" + pwd + "|" + lockType + "\r\n";
-
-                                //将拆分后的服务器数据直接写入本地文件
-                                fileStream.fileStream(FileStream.userDownload, FileStream.write, string.getBytes());
-                            }
-                            countLength += byteArray.length / lock_info_length;
-                        }
-                        publishProgress("" + (int) ((countPackage * 100) / count));
-                    }
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onProgressUpdate(String... progress) {
-            mProgressDialog.setProgress(Integer.parseInt(progress[0]));
-        }
-
-        @SuppressWarnings("deprecation")
-        @Override
-        protected void onPostExecute(String result) {
-            //dismiss/close the dialog after the file was downloaded
-            dismissDialog(DIALOG_DOWNLOAD_PROGRESS);
-            //等待通讯成功
-            if (CommandPacker.succ_flag) {
-                CommandPacker.succ_flag = false;
-                if (count == 0) {
-                    Toast.makeText(getBaseContext(), "此用户尚未关联任何1把锁具信息!", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(getBaseContext(), "用户下载离线关联锁具信息下载结果:" + count + "个包,共计" + countLength + "条离线锁具信息成功完成下载!", Toast.LENGTH_LONG).show();
-                    countLength = 0;
-                    //must changed ServiceActivity.disenabled
-                    downloadUpdate = SetAllActivity.disenabled;
-                }
-            } else if (responsePacket.startsWith("java.net.UnknownHostException:")) {
-                byteArray = fileStream.fileStream(FileStream.socket, FileStream.read, null);
-                string = new String(byteArray);
-                stringArray = string.split(";");
-                Intent intent = new Intent();
-                intent.setClass(getBaseContext(), SocketActivity.class);
-                intent.putExtra(SocketConnect.socketError, "socket通信地址输入有误,确认修改正确后,再尝试重新下载!");
-                intent.putExtra(SocketConnect.socketAddress, stringArray[0]);
-                intent.putExtra(SocketConnect.socketPort, stringArray[1]);
-                startActivity(intent);
-            } else if (responsePacket.startsWith("java.lang.IllegalArgumentException: Port out of range:")) {
-                byteArray = fileStream.fileStream(FileStream.socket, FileStream.read, null);
-                string = new String(byteArray);
-                stringArray = string.split(";");
-                Intent intent = new Intent();
-                intent.setClass(getBaseContext(), SocketActivity.class);
-                intent.putExtra(SocketConnect.socketError, "socket通信端口输入有误,确认修改正确后,再尝试重新下载!");
-                intent.putExtra(SocketConnect.socketAddress, stringArray[0]);
-                intent.putExtra(SocketConnect.socketPort, stringArray[1]);
-                startActivity(intent);
-            } else if (responsePacket.startsWith("java.net.ConnectException")) {
-                Toast.makeText(getBaseContext(), "网络断开连接,导致访问服务器登录超时,确定网络正常后再尝试重新下载!", Toast.LENGTH_LONG).show();
-            } else if (responsePacket.contains("SocketTimeoutException")) {
-                Toast.makeText(getBaseContext(), "服务器登录超时,确认服务器能正常访问后再尝试重新下载!", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(getBaseContext(), "下载失败,请重新下载!", Toast.LENGTH_LONG).show();
-            }
-            //must clear
-            flag = false;
-        }
-
-        @Override
-        protected void onCancelled() {
-            super.onCancelled();
-        }
-    }
 
     private String getUpLook() {
         byte[] byteLog = fileStream.fileStream(FileStream.log, FileStream.read, null);
@@ -1089,39 +832,6 @@ public class MainActivity extends CheckPermissionsActivity
     }
 
     //---------------------------------------------------- 这是一个分割线-----------------------------
-    private void msgString(String str) {
-        if (str.equals("") || str == null) {
-            return;
-        }
-
-        String[] rr = null;
-        String[] rt = str.split("\\(");
-        String[] time = rt[0].split("\\|");//必有4个数据
-        String address;
-        String[] user2 = null;
-        String strs = "";
-        for (int i = 1; i < rt.length; i++) {
-            user2 = rt[i].split("\\[");
-            for (int k = 1; k < user2.length; k++) {
-                address = user2[0];
-                String equipment = user2[k];
-                address = address + "|" + equipment;
-                rr = address.split("\\]");
-                address = rr[0];
-                rr = address.split("\\|");
-                rr = getUs(time, rr);
-                Date curDate = new Date(System.currentTimeMillis());
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
-                String strDate = sdf.format(curDate);
-                if (Long.parseLong(strReplace(rr[1])) < Long.parseLong(strDate) && Long.parseLong(strDate) < Long.parseLong(strReplace(rr[2]))) {
-                    list.add(rr);
-                    strs += rr[0] + ":" + strReplace(rr[1]) + ":" + strReplace(rr[2]) + ":" + rr[7] + ":" + rr[8] + ":" + "000" + rr[9] + ":" + getZerofill(rr[5]) + ":" + getZerofill(rr[6]) + "\r\n";
-                }
-            }
-        }
-        fileStream.fileStream(FileStream.sheetFile, FileStream.write, strs.getBytes());
-    }
-
     private String getZerofill(String str) {
         int str1 = str.length();
         for (int i = 0; i < 14 - str1; i++) {
@@ -1302,17 +1012,7 @@ public class MainActivity extends CheckPermissionsActivity
         workOrderBean.setSign(sign);
         return gson.toJson(workOrderBean);
     }
-
-    public static Date getNextDay(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.add(Calendar.DAY_OF_MONTH, -1);
-        date = calendar.getTime();
-        return date;
-    }
-
     Button wordOdown;
-
     private void initMap(Bundle savedInstanceState) {
         mMap.onCreate(savedInstanceState);
         myAmap = mMap.getMap();
@@ -1345,10 +1045,6 @@ public class MainActivity extends CheckPermissionsActivity
             super.onBackPressed();
         }
     }
-
-    private SimpleDateFormat simpleDateFormat;
-    private Date date_back;
-
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -1440,6 +1136,7 @@ public class MainActivity extends CheckPermissionsActivity
         } else {
             myAmap.moveCamera(update);
         }
+
     }
 
     @Override
@@ -1518,33 +1215,6 @@ public class MainActivity extends CheckPermissionsActivity
             mListener.onLocationChanged(aMapLocation);// 显示系统小蓝点
         }
     }
-
-    void dialogDownload(final NaviLatLng latLng, final String type) {
-        //对话框   Builder是AlertDialog的静态内部类
-        Dialog dialog = new AlertDialog.Builder(this)
-                //设置对话框的标题
-                .setTitle("提示！")
-                //给对话框来个按钮 叫“确定” ，并且设置监听器 这种写法也真是有些BT
-                .setPositiveButton("进行导航", new DialogInterface.OnClickListener() {
-                    //点击 "确定"按钮之后要执行的操作就写在这里
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (LatAndlon == null) {
-                            Toast.makeText(MainActivity.this, "正在获取当前位置，请稍后....", Toast.LENGTH_LONG).show();
-                        } else {
-                            double[] Point = {LatAndlon.latitude, LatAndlon.longitude};
-                            double[] end = {latLng.getLongitude(), latLng.getLatitude()};
-                            Intent intent = new Intent(MainActivity.this, BasicNaviActivity.class);
-                            intent.putExtra("Point", Point);
-                            intent.putExtra("end", end);
-                            startActivity(intent);
-
-                        }
-                    }
-                })
-                .create();//创建按钮
-        dialog.show();
-    }
-
 }
 
 
