@@ -8,7 +8,6 @@ import java.util.List;
 
 public class WorkOrderDataBean {
     private String workOrderNo;//工单编号
-    private List<WorkOrderDataItemBean> lockInfos;
     private String workType; //类型
     private String workNote; //内容
     private String workState;//状态
@@ -21,14 +20,6 @@ public class WorkOrderDataBean {
 
     public void setWorkOrderNo(String workOrderNo) {
         this.workOrderNo = workOrderNo;
-    }
-
-    public List<WorkOrderDataItemBean> getLockInfos() {
-        return lockInfos;
-    }
-
-    public void setLockInfos(List<WorkOrderDataItemBean> lockInfos) {
-        this.lockInfos = lockInfos;
     }
 
     public String getWorkType() {

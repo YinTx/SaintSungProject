@@ -1,37 +1,20 @@
 package com.saintsung.saintpmc.asynctask;
 
 import android.util.Log;
-import android.widget.Toast;
 
-import com.orhanobut.logger.Logger;
-import com.saintsung.saintpmc.BuildConfig;
-import com.saintsung.saintpmc.configuration.configuration;
 import com.saintsung.saintpmc.myinterface.BlogService;
-import com.squareup.okhttp.internal.http.HttpEngine;
 
 
 import java.io.File;
-import java.io.IOException;
 
-import java.nio.charset.Charset;
-import java.nio.charset.UnsupportedCharsetException;
-import java.util.concurrent.TimeUnit;
-
-import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.RequestBody;
-import okhttp3.Response;
+
 import okhttp3.ResponseBody;
 
-import okhttp3.internal.http.HttpHeaders;
-import okhttp3.logging.HttpLoggingInterceptor;
 
-import okio.Buffer;
-import okio.BufferedSource;
 import retrofit2.Call;
 import retrofit2.Callback;
 
@@ -50,7 +33,7 @@ import rx.schedulers.Schedulers;
 
 public class RetrofitRxAndroidHttp {
     private static final MediaType CONTENT_TYPE = MediaType.parse("application/json; charset=utf-8");
-    public void serviceConnect(String url, String result,Action1<ResponseBody> action1) {
+    public void serviceConnect(String url, String result, Action1<ResponseBody> action1) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(url)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -61,27 +44,29 @@ public class RetrofitRxAndroidHttp {
         Observable<ResponseBody> call = service.getCall(body);
         call.subscribeOn(Schedulers.newThread())//这里需要注意的是，网络请求在非ui线程。如果返回结果是依赖于Rxjava的，则需要变换线程
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(action1,onErrorAction);
+                .subscribe(action1, onErrorAction);
     }
-    public void serviceFileConnect(String url,String filePath,String result,Callback callback){
+
+    public void serviceFileConnect(String url, String filePath, String result, Callback callback) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(url)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
         BlogService service = retrofit.create(BlogService.class);
-        File file=new File(filePath);
-        RequestBody requestFile = RequestBody.create(MediaType.parse("application/otcet-stream"),file);
+        File file = new File(filePath);
+        RequestBody requestFile = RequestBody.create(MediaType.parse("application/otcet-stream"), file);
         MultipartBody.Part body = MultipartBody.Part.createFormData("aFile", file.getName(), requestFile);
-        RequestBody description = RequestBody.create(MediaType.parse("multipart/form-data"),result);
-        Call<ResponseBody> call = service.getServiceFileCall(description,body);
+        RequestBody description = RequestBody.create(MediaType.parse("multipart/form-data"), result);
+        Call<ResponseBody> call = service.getServiceFileCall(description, body);
         call.enqueue(callback);
     }
+
     //处理onError()中的内容
     Action1<Throwable> onErrorAction = new Action1<Throwable>() {
         @Override
         public void call(Throwable throwable) {
-        Log.e("TAG","wd", throwable);
+            Log.e("TAG", "wd", throwable);
         }
     };
 }

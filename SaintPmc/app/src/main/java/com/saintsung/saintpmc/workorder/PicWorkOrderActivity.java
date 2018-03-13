@@ -5,20 +5,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.util.ArrayMap;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -35,21 +30,14 @@ import com.raizlabs.android.dbflow.sql.language.Select;
 import com.saintsung.saintpmc.MyApplication;
 import com.saintsung.saintpmc.R;
 import com.saintsung.saintpmc.adapter.SiteDataAdapter;
-import com.saintsung.saintpmc.asynctask.BaseResponse;
-import com.saintsung.saintpmc.asynctask.ModelFilteredFactory;
 import com.saintsung.saintpmc.asynctask.RetrofitRxAndroidHttp;
 import com.saintsung.saintpmc.bean.QueryBureauNumberBean;
 import com.saintsung.saintpmc.bean.QueryBureauNumberBean2;
-import com.saintsung.saintpmc.configuration.configuration;
 import com.saintsung.saintpmc.lock.MD5;
 import com.saintsung.saintpmc.lock.NetworkConnect;
-import com.saintsung.saintpmc.myinterface.BlogService;
 import com.saintsung.saintpmc.orderdatabase.DicLockSiteBean;
 import com.saintsung.saintpmc.orderdatabase.DoorAndMeterDataBase;
-import com.saintsung.saintpmc.tool.DataProcess;
-import com.saintsung.saintpmc.tool.SharedPreferencesUtil;
 import com.saintsung.saintpmc.tool.ToastUtil;
-import com.saintsung.saintpmc.view.AddView;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,14 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-import rx.Observable;
 import rx.functions.Action1;
 
 import static com.saintsung.saintpmc.MainActivity.LatAndlon;
@@ -95,7 +76,6 @@ public class PicWorkOrderActivity extends AppCompatActivity implements View.OnCl
     }
 
     private void initView() {
-//        ModelFilteredFactory.compose(new Observable<BaseResponse<ResponseBody>> n);
         siteTypeList = (ListView) findViewById(R.id.siteTypeList);
         TextView latitude = (TextView) findViewById(R.id.latitude);
         TextView longitude = (TextView) findViewById(R.id.longitude);

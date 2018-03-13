@@ -18,5 +18,9 @@ public class WorkOrderControData extends BaseModel {
     @Column
     public String workOrderState;
     @Column
+    public String startTime;
+    @Column
+    public String endTime;
+    @Column
     public String workTime;
 }

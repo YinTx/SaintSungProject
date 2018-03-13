@@ -5,18 +5,14 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -53,25 +49,19 @@ import com.amap.api.maps.MapView;
 import com.amap.api.maps.UiSettings;
 import com.amap.api.maps.model.CameraPosition;
 import com.amap.api.maps.model.LatLng;
-import com.amap.api.navi.model.NaviLatLng;
 
 import com.google.gson.Gson;
-import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
-import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransaction;
 
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.saintsung.saintpmc.asynctask.RetrofitRxAndroidHttp;
 
 import com.saintsung.saintpmc.bean.QueryBureauNumberBean2;
-import com.saintsung.saintpmc.bean.WorkOrderDataItemBean;
 
 import com.saintsung.saintpmc.loading.LoginActivity;
 
 import com.saintsung.saintpmc.loading.User;
 import com.saintsung.saintpmc.loading.Utils;
-import com.saintsung.saintpmc.location.BasicNaviActivity;
 import com.saintsung.saintpmc.location.CheckPermissionsActivity;
 import com.saintsung.saintpmc.lock.BluetoothLeService;
 import com.saintsung.saintpmc.lock.CommandPacker;
@@ -83,13 +73,9 @@ import com.saintsung.saintpmc.lock.JSONArray;
 import com.saintsung.saintpmc.lock.JSONException;
 import com.saintsung.saintpmc.lock.JSONObject;
 import com.saintsung.saintpmc.lock.LockSetActivity;
-import com.saintsung.saintpmc.lock.NetworkConnect;
 import com.saintsung.saintpmc.lock.SetActivity0;
 import com.saintsung.saintpmc.lock.SetAllActivity;
-import com.saintsung.saintpmc.lock.SocketActivity;
-import com.saintsung.saintpmc.lock.SocketConnect;
 import com.saintsung.saintpmc.lock.User_Share;
-import com.saintsung.saintpmc.msgintercept.TextActivity;
 import com.saintsung.saintpmc.orderdatabase.DicCategoryBean;
 import com.saintsung.saintpmc.orderdatabase.DicLockSiteBean;
 
@@ -105,10 +91,8 @@ import com.saintsung.saintpmc.orderdatabase.LstElecUserMeteringBean;
 
 import com.saintsung.saintpmc.orderdatabase.LstLookBean;
 
-import com.saintsung.saintpmc.orderdatabase.WorkOrderBean;
 import com.saintsung.saintpmc.orderdatabase.WorkOrderControData;
 import com.saintsung.saintpmc.orderdatabase.WorkOrderControData$Table;
-import com.saintsung.saintpmc.orderdatabase.WorkOrderDetailsBean;
 import com.saintsung.saintpmc.tool.DataProcess;
 import com.saintsung.saintpmc.tool.ToastUtil;
 
@@ -119,10 +103,8 @@ import com.saintsung.saintpmc.workorder.WorkOrderDetailsPic;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import java.util.Date;
 import java.util.LinkedList;
@@ -304,6 +286,7 @@ public class MainActivity extends CheckPermissionsActivity
             }
         }).start();
     }
+
     private void MyThread4(final String dbtable, final String packet) {
         new Thread(new Runnable() {
             @Override
@@ -355,329 +338,6 @@ public class MainActivity extends CheckPermissionsActivity
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-
-                }
-                if (dbtable.equals("LST_ELEC_USER_LOCK") && result.substring(10, 11).equals("1")) {
-                    String result1 = result.substring(73, result.length() - 32);
-                    try {
-                        JSONArray jsonArray = new JSONArray(result1);
-                        List<LstElecUserLockBean> peoples = new Select().from(LstElecUserLockBean.class).queryList();
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject jsonObject = jsonArray.getJSONObject(i);
-                            boolean flag3 = true;
-                            for (int k = 0; k < peoples.size(); k++) {
-                                String flag = peoples.get(k).id.toString();
-                                String flag2 = jsonObject.getString("ID");
-                                if (flag.equals(flag2)) {
-                                    flag3 = false;
-                                    break;
-                                }
-                            }
-                            if (flag3) {
-                                lstElecUserLockBean = new LstElecUserLockBean();
-                                if (!jsonObject.isNull("ID")) {
-                                    lstElecUserLockBean.id = Long.valueOf(jsonObject.getString("ID"));
-                                }
-                                if (!jsonObject.isNull("SITE_ID")) {
-                                    lstElecUserLockBean.SITE_ID = jsonObject.getString("SITE_ID");
-                                }
-                                if (!jsonObject.isNull("ELEC_USER_ID")) {
-                                    lstElecUserLockBean.ELEC_USER_ID = jsonObject.getString("ELEC_USER_ID");
-                                }
-                                if (!jsonObject.isNull("IS_DELETE")) {
-                                    lstElecUserLockBean.IS_DELETE = jsonObject.getString("IS_DELETE");
-                                }
-
-                                if (!jsonObject.isNull("L_ID")) {
-                                    lstElecUserLockBean.L_ID = jsonObject.getString("L_ID");
-                                }
-                                lstElecUserLockBean.insert();
-                            }
-                        }
-                        if (Integer.parseInt(packet) < Integer.parseInt(result.substring(65, 69))) {
-                            int pac = Integer.parseInt(packet);
-                            pac++;
-                            MyThread4(dbtable, ComplementZeor(pac + "", 4));
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-                if (dbtable.equals("LST_ELEC_USER") && result.substring(10, 11).equals("1")) {
-                    String result1 = result.substring(73, result.length() - 32);
-                    try {
-                        JSONArray jsonArray = new JSONArray(result1);
-                        List<LstElecUserBean> peoples = new Select().from(LstElecUserBean.class).queryList();
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject jsonObject = jsonArray.getJSONObject(i);
-                            boolean flag3 = true;
-                            for (int k = 0; k < peoples.size(); k++) {
-                                String flag = peoples.get(k).ID.toString();
-                                String flag2 = jsonObject.getString("ID");
-                                if (flag.equals(flag2)) {
-                                    flag3 = false;
-                                    break;
-                                }
-                            }
-                            if (flag3) {
-                                lstElecUserBean = new LstElecUserBean();
-                                if (!jsonObject.isNull("ID")) {
-                                    lstElecUserBean.ID = Long.valueOf(jsonObject.getString("ID"));
-                                }
-                                if (!jsonObject.isNull("ELEC_LEVER")) {
-                                    lstElecUserBean.ELEC_LEVER = jsonObject.getString("ELEC_LEVER");
-                                }
-                                if (!jsonObject.isNull("ELEC_USER_MOBILE")) {
-                                    lstElecUserBean.ELEC_USER_MOBILE = jsonObject.getString("ELEC_USER_MOBILE");
-                                }
-                                if (!jsonObject.isNull("ELEC_USER_NAME")) {
-                                    lstElecUserBean.ELEC_USER_NAME = jsonObject.getString("ELEC_USER_NAME");
-                                }
-                                if (!jsonObject.isNull("ELEC_USER_STATUS")) {
-                                    lstElecUserBean.ELEC_USER_STATUS = jsonObject.getString("ELEC_USER_STATUS");
-                                }
-                                if (!jsonObject.isNull("ELEC_USER_TYPE")) {
-                                    lstElecUserBean.ELEC_USER_TYPE = jsonObject.getString("ELEC_USER_TYPE");
-                                }
-                                if (!jsonObject.isNull("IS_DELETE")) {
-                                    lstElecUserBean.IS_DELETE = jsonObject.getString("IS_DELETE");
-                                }
-                                if (!jsonObject.isNull("METER_POINT_ID")) {
-                                    lstElecUserBean.METER_POINT_ID = jsonObject.getString("METER_POINT_ID");
-                                }
-                                if (!jsonObject.isNull("ELEC_USER_NO")) {
-                                    lstElecUserBean.ELEC_USER_NO = jsonObject.getString("ELEC_USER_NO");
-                                }
-                                if (!jsonObject.isNull("OFFICE_NO")) {
-                                    lstElecUserBean.OFFICE_NO = jsonObject.getString("OFFICE_NO");
-                                }
-                                lstElecUserBean.insert();
-                            }
-                        }
-                        if (Integer.parseInt(packet) < Integer.parseInt(result.substring(65, 69))) {
-                            int pac = Integer.parseInt(packet);
-                            pac++;
-                            MyThread4(dbtable, ComplementZeor(pac + "", 4));
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-                if (dbtable.equals("LST_ELEC_DEVICE") && result.substring(10, 11).equals("1")) {
-                    String result1 = result.substring(73, result.length() - 32);
-                    try {
-                        JSONArray jsonArray = new JSONArray(result1);
-                        List<LstElecDeviceBean> peoples = new Select().from(LstElecDeviceBean.class).queryList();
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject jsonObject = jsonArray.getJSONObject(i);
-                            boolean flag3 = true;
-                            for (int k = 0; k < peoples.size(); k++) {
-                                String flag = peoples.get(k).ID.toString();
-                                String flag2 = jsonObject.getString("ID");
-                                if (flag.equals(flag2)) {
-                                    flag3 = false;
-                                    break;
-                                }
-                            }
-
-                            if (flag3) {
-                                lstElecDeviceBean = new LstElecDeviceBean();
-                                if (!jsonObject.isNull("ID")) {
-                                    lstElecDeviceBean.ID = Long.valueOf(jsonObject.getString("ID"));
-                                }
-                                if (!jsonObject.isNull("ELEC_DEVICE_NO")) {
-                                    lstElecDeviceBean.ELEC_DEVICE_NO = jsonObject.getString("ELEC_DEVICE_NO");
-                                }
-                                if (!jsonObject.isNull("ELEC_DEVICE_STATUS")) {
-                                    lstElecDeviceBean.ELEC_DEVICE_STATUS = jsonObject.getString("ELEC_DEVICE_STATUS");
-                                }
-                                if (!jsonObject.isNull("ELEC_DEVICE_TYPE")) {
-                                    lstElecDeviceBean.ELEC_DEVICE_TYPE = jsonObject.getString("ELEC_DEVICE_TYPE");
-                                }
-                                if (!jsonObject.isNull("ELEC_DEVICE_VENDER")) {
-                                    lstElecDeviceBean.ELEC_DEVICE_VENDER = jsonObject.getString("ELEC_DEVICE_VENDER");
-                                }
-                                if (!jsonObject.isNull("IS_DELETE")) {
-                                    lstElecDeviceBean.IS_DELETE = jsonObject.getString("IS_DELETE");
-                                }
-                                if (!jsonObject.isNull("METER_POINT_ID")) {
-                                    lstElecDeviceBean.METER_POINT_ID = jsonObject.getString("METER_POINT_ID");
-                                }
-                                lstElecDeviceBean.insert();
-                            }
-                        }
-                        if (Integer.parseInt(packet) < Integer.parseInt(result.substring(65, 69))) {
-                            int pac = Integer.parseInt(packet);
-                            pac++;
-                            MyThread4(dbtable, ComplementZeor(pac + "", 4));
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-                if (dbtable.equals("DIC_CATEGORY") && result.substring(10, 11).equals("1")) {
-                    String result1 = result.substring(73, result.length() - 32);
-
-                    try {
-                        JSONArray jsonArray = new JSONArray(result1);
-                        List<DicCategoryBean> peoples = new Select().from(DicCategoryBean.class).queryList();
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject jsonObject = jsonArray.getJSONObject(i);
-                            boolean flag3 = true;
-                            for (int k = 0; k < peoples.size(); k++) {
-                                String flag = peoples.get(k).ID.toString();
-                                String flag2 = jsonObject.getString("ID");
-                                if (flag.equals(flag2)) {
-                                    flag3 = false;
-                                    break;
-                                }
-                            }
-                            if (flag3) {
-                                dicCategoryBean = new DicCategoryBean();
-                                if (!jsonObject.isNull("ID")) {
-                                    dicCategoryBean.ID = Long.valueOf(jsonObject.getString("ID"));
-                                }
-                                if (!jsonObject.isNull("CATE_NAME")) {
-                                    dicCategoryBean.CATE_NAME = jsonObject.getString("CATE_NAME");
-                                }
-                                if (!jsonObject.isNull("IS_DELETE")) {
-                                    dicCategoryBean.IS_DELETE = jsonObject.getString("IS_DELETE");
-                                }
-                                if (!jsonObject.isNull("P_ID")) {
-                                    dicCategoryBean.P_ID = jsonObject.getString("P_ID");
-                                }
-                                if (!jsonObject.isNull("POINT_X")) {
-                                    dicCategoryBean.POINT_X = jsonObject.getString("POINT_X");
-                                }
-                                if (!jsonObject.isNull("POINT_Y")) {
-                                    dicCategoryBean.POINT_Y = jsonObject.getString("POINT_Y");
-                                }
-                                dicCategoryBean.insert();
-                            }
-                        }
-                        if (Integer.parseInt(packet) < Integer.parseInt(result.substring(65, 69))) {
-                            int pac = Integer.parseInt(packet);
-                            pac++;
-                            MyThread4(dbtable, ComplementZeor(pac + "", 4));
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-
-                if (dbtable.equals("LST_LOCK") && result.substring(10, 11).equals("1")) {
-                    String result1 = result.substring(73, result.length() - 32);
-
-                    try {
-                        JSONArray jsonArray = new JSONArray(result1);
-                        List<LstLookBean> peoples = new Select().from(LstLookBean.class).queryList();
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject jsonObject = jsonArray.getJSONObject(i);
-                            boolean flag3 = true;
-                            for (int k = 0; k < peoples.size(); k++) {
-                                String flag = peoples.get(k).ID.toString();
-                                String flag2 = jsonObject.getString("ID");
-                                if (flag.equals(flag2)) {
-                                    flag3 = false;
-                                    break;
-                                }
-                            }
-                            if (flag3) {
-                                lstLookBean = new LstLookBean();
-                                if (!jsonObject.isNull("ID")) {
-                                    lstLookBean.ID = Long.valueOf(jsonObject.getString("ID"));
-                                }
-                                if (!jsonObject.isNull("ADDRESS")) {
-                                    lstLookBean.ADDRESS = jsonObject.getString("ADDRESS");
-                                }
-                                if (!jsonObject.isNull("CATE_ID")) {
-                                    lstLookBean.CATE_ID = jsonObject.getString("CATE_ID");
-                                }
-                                if (!jsonObject.isNull("IS_DELETE")) {
-                                    lstLookBean.IS_DELETE = jsonObject.getString("IS_DELETE");
-                                }
-                                if (!jsonObject.isNull("L_NO")) {
-                                    lstLookBean.L_NO = jsonObject.getString("L_NO");
-                                }
-                                if (!jsonObject.isNull("OPT_PWD")) {
-                                    lstLookBean.OPT_PWD = jsonObject.getString("OPT_PWD");
-                                }
-                                if (!jsonObject.isNull("POINT_X")) {
-                                    lstLookBean.POINT_X = jsonObject.getString("POINT_X");
-                                }
-                                if (!jsonObject.isNull("POINT_Y")) {
-                                    lstLookBean.POINT_Y = jsonObject.getString("POINT_Y");
-                                }
-                                if (!jsonObject.isNull("STATE_ID")) {
-                                    lstLookBean.STATE_ID = jsonObject.getString("STATE_ID");
-                                }
-                                if (!jsonObject.isNull("TYPE_ID")) {
-                                    lstLookBean.TYPE_ID = jsonObject.getString("TYPE_ID");
-                                }
-                                if (!jsonObject.isNull("USER_ID")) {
-                                    lstLookBean.USER_ID = jsonObject.getString("USER_ID");
-                                }
-                                if (!jsonObject.isNull("ASSET_NO")) {
-                                    lstLookBean.ASSET_NO = jsonObject.getString("ASSET_NO");
-                                }
-                                lstLookBean.insert();
-
-                                new SaveModelTransaction<>(ProcessModelInfo.withModels(lstLookBean)).onExecute();
-                            }
-                        }
-                        if (Integer.parseInt(packet) < Integer.parseInt(result.substring(65, 69))) {
-                            int pac = Integer.parseInt(packet);
-                            pac++;
-                            MyThread4(dbtable, ComplementZeor(pac + "", 4));
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        Thread.sleep(10000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-                if (dbtable.equals("LST_ELEC_USER_METERING") && result.substring(10, 11).equals("1")) {
-                    String result1 = result.substring(73, result.length() - 32);
-                    try {
-                        JSONArray jsonArray = new JSONArray(result1);
-                        List<LstElecUserMeteringBean> peoples = new Select().from(LstElecUserMeteringBean.class).queryList();
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject jsonObject = jsonArray.getJSONObject(i);
-                            boolean flag3 = true;
-                            for (int k = 0; k < peoples.size(); k++) {
-                                String flag = peoples.get(k).ID.toString();
-                                String flag2 = jsonObject.getString("ID");
-                                if (flag.equals(flag2)) {
-                                    flag3 = false;
-                                    break;
-                                }
-                            }
-                            if (flag3) {
-                                lstElecUserMeteringBean = new LstElecUserMeteringBean();
-                                if (!jsonObject.isNull("ID")) {
-                                    lstElecUserMeteringBean.ID = Long.valueOf(jsonObject.getString("ID"));
-                                }
-                                if (!jsonObject.isNull("ELEC_USER_ID")) {
-                                    lstElecUserMeteringBean.ELEC_USER_ID = jsonObject.getString("ELEC_USER_ID");
-                                }
-                                if (!jsonObject.isNull("METERING_NO")) {
-                                    lstElecUserMeteringBean.METERING_NO = jsonObject.getString("METERING_NO");
-                                }
-                                lstElecUserMeteringBean.insert();
-                            }
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
                 }
             }
         }).start();
@@ -886,22 +546,15 @@ public class MainActivity extends CheckPermissionsActivity
         LockSetActivity.unlockType = LockSetActivity.unlockUser;
         //写入到文件中
         fileStream.fileStream(FileStream.unlockType, FileStream.write, LockSetActivity.unlockType.getBytes());
-        //
         flag_open = true;
         myPortSharedPreferences = this.getSharedPreferences("port", Context.MODE_PRIVATE);
         mySharedPreferences = getSharedPreferences("orderInfo",
                 Activity.MODE_PRIVATE);
         mMap = (MapView) findViewById(R.id.mMap);
         btnLocation = (ImageButton) findViewById(R.id.mbtn_d);
-
         btnLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (con == 5) {
-                    startActivity(new Intent(MainActivity.this, TextActivity.class));
-                } else {
-                    con++;
-                }
                 if (LatAndlon == null) {
                     new ToastUtil().getToast(MainActivity.this, "正在获取地理位置,请稍后...");
                 } else {
@@ -930,7 +583,6 @@ public class MainActivity extends CheckPermissionsActivity
     }
 
     private Action1<ResponseBody> action2 = new Action1<ResponseBody>() {
-
         @Override
         public void call(ResponseBody responseBody) {
             try {
@@ -941,12 +593,11 @@ public class MainActivity extends CheckPermissionsActivity
         }
     };
     private Action1<ResponseBody> action1 = new Action1<ResponseBody>() {
-
         @Override
         public void call(ResponseBody responseBody) {
             try {
                 dataProcessing(responseBody.string());
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -964,18 +615,20 @@ public class MainActivity extends CheckPermissionsActivity
 
     private void dataProcessing(String string) {
         Log.e("TAG", "" + string);
+        long startTime = System.nanoTime();
         Gson gson = new Gson();
         com.saintsung.saintpmc.bean.WorkOrderBean workOrderBean = gson.fromJson(string, com.saintsung.saintpmc.bean.WorkOrderBean.class);
         if (workOrderBean.getResult().equals("0000"))
             MyApplication.setWorkOrderBean(workOrderBean);
-        LockInformation lockInformation = new LockInformation();
+
         for (int i = 0; i < workOrderBean.getData().size(); i++) {
-            List<WorkOrderDataItemBean> workOrderDataItemBeanList = workOrderBean.getData().get(i).getLockInfos();
             WorkOrderControData workOrderControData = new WorkOrderControData();
             WorkOrderControData workOrderControData1 = new Select().from(WorkOrderControData.class).where(Condition.column(WorkOrderControData$Table.WORKORDERNUMBER).is(workOrderBean.getData().get(i).getWorkOrderNo())).querySingle();
             if (workOrderControData1 == null) {
                 workOrderControData.workOrderNumber = workOrderBean.getData().get(i).getWorkOrderNo();
                 workOrderControData.workOrderState = workOrderBean.getData().get(i).getWorkState();
+                workOrderControData.startTime=workOrderBean.getData().get(i).getStartTime();
+                workOrderControData.endTime=workOrderBean.getData().get(i).getEndTime();
                 Date date = new Date();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 workOrderControData.workTime = sdf.format(date);
@@ -983,23 +636,28 @@ public class MainActivity extends CheckPermissionsActivity
             } else {
                 workOrderControData.workOrderNumber = workOrderBean.getData().get(i).getWorkOrderNo();
                 workOrderControData.workOrderState = workOrderBean.getData().get(i).getWorkState();
+                workOrderControData.startTime=workOrderBean.getData().get(i).getStartTime();
+                workOrderControData.endTime=workOrderBean.getData().get(i).getEndTime();
                 Date date = new Date();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 workOrderControData.workTime = sdf.format(date);
                 workOrderControData.update();
             }
-            for (int j = 0; j < workOrderDataItemBeanList.size(); j++) {
-                lockInformation.lockNo = workOrderDataItemBeanList.get(j).getLockNo();
-                lockInformation.assetno = workOrderDataItemBeanList.get(j).getAssetno();
-                lockInformation.optPwd = workOrderDataItemBeanList.get(j).getOptPwd();
-                lockInformation.pointX = workOrderDataItemBeanList.get(j).getPointX();
-                lockInformation.pointY = workOrderDataItemBeanList.get(j).getPointY();
-                lockInformation.type = workOrderDataItemBeanList.get(j).getType();
-                lockInformation.starTime = workOrderBean.getData().get(i).getStartTime();
-                lockInformation.endTime = workOrderBean.getData().get(i).getEndTime();
-                lockInformation.insert();
-            }
+
+//            for (int j = 0; j < workOrderDataItemBeanList.size(); j++) {
+//                lockInformation.lockNo = workOrderDataItemBeanList.get(j).getLockNo();
+//                lockInformation.assetno = workOrderDataItemBeanList.get(j).getAssetno();
+//                lockInformation.optPwd = workOrderDataItemBeanList.get(j).getOptPwd();
+//                lockInformation.pointX = workOrderDataItemBeanList.get(j).getPointX();
+//                lockInformation.pointY = workOrderDataItemBeanList.get(j).getPointY();
+//                lockInformation.type = workOrderDataItemBeanList.get(j).getType();
+//                lockInformation.starTime = workOrderBean.getData().get(i).getStartTime();
+//                lockInformation.endTime = workOrderBean.getData().get(i).getEndTime();
+//                lockInformation.insert();
+//            }
         }
+        long consumingTime = System.nanoTime() - startTime;
+        Log.e("TAG", "time:" + consumingTime);
     }
 
     private String getGsonStr() {
@@ -1008,11 +666,15 @@ public class MainActivity extends CheckPermissionsActivity
         com.saintsung.saintpmc.bean.WorkOrderBean workOrderBean = new com.saintsung.saintpmc.bean.WorkOrderBean();
         workOrderBean.setOptCode("GetWorkOrderInfos");
         workOrderBean.setOptUserNumber(MyApplication.getUserId());
-        sign = com.saintsung.saintpmc.lock.MD5.toMD5(workOrderBean.getOptCode() + workOrderBean.getOptUserNumber() + workOrderBean.getData());
+        workOrderBean.setEndTime("0000-00-00");
+        workOrderBean.setStartTime("0000-00-00");
+        sign = com.saintsung.saintpmc.lock.MD5.toMD5(workOrderBean.getOptCode() + workOrderBean.getOptUserNumber() +workOrderBean.getStartTime()+workOrderBean.getEndTime()+ workOrderBean.getData());
         workOrderBean.setSign(sign);
         return gson.toJson(workOrderBean);
     }
+
     Button wordOdown;
+
     private void initMap(Bundle savedInstanceState) {
         mMap.onCreate(savedInstanceState);
         myAmap = mMap.getMap();
@@ -1045,6 +707,7 @@ public class MainActivity extends CheckPermissionsActivity
             super.onBackPressed();
         }
     }
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {

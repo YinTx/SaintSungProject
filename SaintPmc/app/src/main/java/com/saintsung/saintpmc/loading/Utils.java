@@ -31,7 +31,7 @@ public class Utils {
 			array.put(user.toJSON());
 		}
 		try {
-			out = context.openFileOutput(FILENAME, Context.MODE_PRIVATE); // ����
+			out = context.openFileOutput(FILENAME, Context.MODE_PRIVATE);
 			writer = new OutputStreamWriter(out);
 			writer.write(array.toString());
 		} finally {

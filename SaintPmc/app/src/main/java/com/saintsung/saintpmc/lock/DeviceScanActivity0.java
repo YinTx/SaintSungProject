@@ -203,7 +203,7 @@ public class DeviceScanActivity0 extends AppCompatActivity implements BleDeviceM
 
 		@Override
 		public void onClick(View v) {
-			//wk
+
 			String name = this.mItemMap.get("name").toString();
 			String address = this.mItemMap.get("address").toString();
 			String status = this.mItemMap.get("status").toString();

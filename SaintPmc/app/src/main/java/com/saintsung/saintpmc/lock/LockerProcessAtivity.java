@@ -55,6 +55,7 @@ import com.saintsung.saintpmc.R;
 import com.saintsung.saintpmc.asynctask.RetrofitRxAndroidHttp;
 import com.saintsung.saintpmc.bean.WorkOrderDataBean;
 import com.saintsung.saintpmc.bean.WorkOrderDataItemBean;
+import com.saintsung.saintpmc.bean.WorkOrderDealitBean;
 import com.saintsung.saintpmc.bean.WorkOrderItemBean;
 import com.saintsung.saintpmc.bean.WorkOrderUpServiceBean;
 import com.saintsung.saintpmc.configuration.configuration;
@@ -138,12 +139,10 @@ public class LockerProcessAtivity extends AppCompatActivity {
         // ]]
         this.setContentView(R.layout.locker_process);
         initLoginingDlg();
-
         // 文件保存信息
         user_Share = new User_Share();
         mySharedPreferences = getSharedPreferences(user_Share.MY_PREFS, MODE_PRIVATE);
         editor = mySharedPreferences.edit();
-
         this.mLogTextView = (TextView) this.findViewById(R.id.log);
         this.mLogTextView.setMovementMethod(ScrollingMovementMethod.getInstance());
         mHandler = new Handler();
@@ -174,8 +173,6 @@ public class LockerProcessAtivity extends AppCompatActivity {
             public void onClick(View arg0) {
                 // TODO Auto-generated method stub
                 MainActivity.back = MainActivity.string_back;
-                // /*
-                // check MainActivity flag_open
                 if (!MainActivity.flag_open) {
                     Intent intent = new Intent();
                     intent.setClass(getBaseContext(), MainActivity.class);
@@ -219,33 +216,39 @@ public class LockerProcessAtivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 fileStream.fileStream(FileStream.sheetFile, FileStream.delete, null);
-                String res = "";
                 newWorkOrder = (TextView) view.findViewById(R.id.newWorkOrder);
                 newWorkOrder.setVisibility(View.VISIBLE);
                 newWorkOrder.setText("进行工单");
                 mPcRecordAdapter.clearView(position);
                 TextView work_orderNumber = (TextView) view.findViewById(R.id.work_orderNumber);
-                WorkOrderControData workOrderControData = new Select().from(WorkOrderControData.class).where(Condition.column(WorkOrderControData$Table.WORKORDERNUMBER).is(work_orderNumber.getText().toString())).querySingle();
+                String workOrderNumber = work_orderNumber.getText().toString();
+                WorkOrderControData workOrderControData = new Select().from(WorkOrderControData.class).where(Condition.column(WorkOrderControData$Table.WORKORDERNUMBER).is(workOrderNumber)).querySingle();
                 workOrderControData.workOrderState = "3";
                 workOrderControData.update();
+                RetrofitRxAndroidHttp retrofitRxAndroidHttp = new RetrofitRxAndroidHttp();
+                retrofitRxAndroidHttp.serviceConnect(MyApplication.getUrl(), getWorkOrderDealitStr(workOrderNumber), action3);
                 //				List<WorkOrderDetailsBean> peoples = new Select	List<WorkOrderDetailsBean> peoples = new Select().from(WorkOrderDetailsBean.class).where(Condition.column(WorkOrderDetailsBean$Table.WORKORDERNUMBER).is(workOrder)).queryList();
-                for (int i = 0; i < workOrderBean.getData().get(position).getLockInfos().size(); i++) {
-                    WorkOrderDataBean workOrderDataBean = workOrderBean.getData().get(position);
-                    res = res + workOrderDataBean.getWorkOrderNo() + ":" + workOrderDataBean.getStartTime() + ":" + workOrderDataBean.getEndTime() + ":" + workOrderDataBean.getLockInfos().get(i).getLockNo() + ":" + workOrderDataBean.getLockInfos().get(i).getOptPwd() + ":" + workOrderDataBean.getLockInfos().get(i).getType() + ":" + workOrderDataBean.getLockInfos().get(i).getPointX() + ":" + workOrderDataBean.getLockInfos().get(i).getPointY() + "\r\n";
-                }
-                fileStream.fileStream(FileStream.sheetFile, FileStream.write, res.getBytes());
-                if (MainActivity.SLEEP.equals(MainActivity.state_sleep)) {
-                    dialogWakeUp();
-                    Toast.makeText(LockerProcessAtivity.this, "掌机未唤醒", Toast.LENGTH_LONG).show();
-                } else {
-                    if (MainActivity.isDown)
-                        sendS00_sheet();
-                    else
-                        addLog("正在初始化小掌机时间，请稍后再试！");
-                }
+//                for (int i = 0; i < workOrderBean.getData().get(position).getLockInfos().size(); i++) {
+//                    WorkOrderDataBean workOrderDataBean = workOrderBean.getData().get(position);
+//                    res = res + workOrderDataBean.getWorkOrderNo() + ":" + workOrderDataBean.getStartTime() + ":" + workOrderDataBean.getEndTime() + ":" + workOrderDataBean.getLockInfos().get(i).getLockNo() + ":" + workOrderDataBean.getLockInfos().get(i).getOptPwd() + ":" + workOrderDataBean.getLockInfos().get(i).getType() + ":" + workOrderDataBean.getLockInfos().get(i).getPointX() + ":" + workOrderDataBean.getLockInfos().get(i).getPointY() + "\r\n";
+//                }
+
             }
         });
         mPcRecordAdapter.notifyDataSetChanged();
+    }
+
+    private String getWorkOrderDealitStr(String number) {
+        Gson gson = new Gson();
+        String sign = "";
+        WorkOrderDealitBean workOrderDealitBean = new WorkOrderDealitBean();
+        workOrderDealitBean.setOptCode("GetWorkOrderDetailInfos");
+        workOrderDealitBean.setWorkOrderNo(number);
+        workOrderDealitBean.setNums("0");
+        workOrderDealitBean.setLockNum("2000");
+        workOrderDealitBean.setCntNum("1");
+        workOrderDealitBean.setSign(MD5.toMD5(workOrderDealitBean.getOptCode() + workOrderDealitBean.getWorkOrderNo() + workOrderDealitBean.getNums() + workOrderDealitBean.getCntNum() + workOrderDealitBean.getLockNum() + workOrderDealitBean.getData()));
+        return gson.toJson(workOrderDealitBean);
     }
 
     private String getGsonStr() {
@@ -254,10 +257,13 @@ public class LockerProcessAtivity extends AppCompatActivity {
         com.saintsung.saintpmc.bean.WorkOrderBean workOrderBean = new com.saintsung.saintpmc.bean.WorkOrderBean();
         workOrderBean.setOptCode("GetWorkOrderInfos");
         workOrderBean.setOptUserNumber(MyApplication.getUserId());
-        sign = MD5.toMD5(workOrderBean.getOptCode() + workOrderBean.getOptUserNumber() + workOrderBean.getData());
+        workOrderBean.setEndTime("0000-00-00");
+        workOrderBean.setStartTime("0000-00-00");
+        sign = MD5.toMD5(workOrderBean.getOptCode() + workOrderBean.getOptUserNumber() + workOrderBean.getStartTime() + workOrderBean.getEndTime() + workOrderBean.getData());
         workOrderBean.setSign(sign);
         return gson.toJson(workOrderBean);
     }
+
     private Action1<ResponseBody> action2 = new Action1<ResponseBody>() {
 
         @Override
@@ -287,27 +293,28 @@ public class LockerProcessAtivity extends AppCompatActivity {
             }
         }
     };
+
     private void dataProcessing(String string) {
         Log.e("TAG", "" + string);
         Gson gson = new Gson();
         workOrderBean = gson.fromJson(string, com.saintsung.saintpmc.bean.WorkOrderBean.class);
         MyApplication.setWorkOrderBean(workOrderBean);
         mPcRecordAdapter.list = workOrderBean;
-        RetrofitRxAndroidHttp retrofitRxAndroidHttp=new RetrofitRxAndroidHttp();
-        retrofitRxAndroidHttp.serviceConnect(MyApplication.getUrl(),getUpService(workOrderBean),action2);
+        RetrofitRxAndroidHttp retrofitRxAndroidHttp = new RetrofitRxAndroidHttp();
+        retrofitRxAndroidHttp.serviceConnect(MyApplication.getUrl(), getUpService(workOrderBean), action2);
         mPcRecordAdapter.notifyDataSetChanged();
         List<LockInformation> lockInformations = new Select().from(LockInformation.class).queryList();
         for (LockInformation student : lockInformations) {
             student.delete();
         }
-        LockInformation lockInformation = new LockInformation();
         for (int i = 0; i < workOrderBean.getData().size(); i++) {
-            List<WorkOrderDataItemBean> workOrderDataItemBeanList = workOrderBean.getData().get(i).getLockInfos();
             WorkOrderControData workOrderControData = new WorkOrderControData();
             WorkOrderControData workOrderControData1 = new Select().from(WorkOrderControData.class).where(Condition.column(WorkOrderControData$Table.WORKORDERNUMBER).is(workOrderBean.getData().get(i).getWorkOrderNo())).querySingle();
             if (workOrderControData1 == null) {
                 workOrderControData.workOrderNumber = workOrderBean.getData().get(i).getWorkOrderNo();
                 workOrderControData.workOrderState = workOrderBean.getData().get(i).getWorkState();
+                workOrderControData.startTime=workOrderBean.getData().get(i).getStartTime();
+                workOrderControData.endTime=workOrderBean.getData().get(i).getEndTime();
                 Date date = new Date();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 workOrderControData.workTime = sdf.format(date);
@@ -315,41 +322,76 @@ public class LockerProcessAtivity extends AppCompatActivity {
             } else {
                 workOrderControData.workOrderNumber = workOrderBean.getData().get(i).getWorkOrderNo();
                 workOrderControData.workOrderState = workOrderBean.getData().get(i).getWorkState();
+                workOrderControData.startTime=workOrderBean.getData().get(i).getStartTime();
+                workOrderControData.endTime=workOrderBean.getData().get(i).getEndTime();
                 Date date = new Date();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 workOrderControData.workTime = sdf.format(date);
                 workOrderControData.update();
             }
+        }
 
-            for (int j = 0; j < workOrderDataItemBeanList.size(); j++) {
+    }
+
+    private Action1<ResponseBody> action3 = new Action1<ResponseBody>() {
+
+        @Override
+        public void call(ResponseBody responseBody) {
+            try {
+                dataProces(responseBody.string());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
+    private void dataProces(String string) {
+        Gson gson = new Gson();
+        WorkOrderDealitBean workOrderDealitBean = gson.fromJson(string, WorkOrderDealitBean.class);
+        if (workOrderDealitBean.getResult().equals("0000")) {
+            WorkOrderControData workOrderControData1 = new Select().from(WorkOrderControData.class).where(Condition.column(WorkOrderControData$Table.WORKORDERNUMBER).is(workOrderDealitBean.getWorkOrderNo())).querySingle();
+            List<WorkOrderDataItemBean> workOrderDataItemBeanList = workOrderDealitBean.getData();
+            String res = "";
+            for (int j = 0; j < workOrderDealitBean.getData().size(); j++) {
+                LockInformation lockInformation = new LockInformation();
                 lockInformation.lockNo = workOrderDataItemBeanList.get(j).getLockNo();
                 lockInformation.assetno = workOrderDataItemBeanList.get(j).getAssetno();
                 lockInformation.optPwd = workOrderDataItemBeanList.get(j).getOptPwd();
                 lockInformation.pointX = workOrderDataItemBeanList.get(j).getPointX();
                 lockInformation.pointY = workOrderDataItemBeanList.get(j).getPointY();
                 lockInformation.type = workOrderDataItemBeanList.get(j).getType();
-                lockInformation.starTime = workOrderBean.getData().get(i).getStartTime();
-                lockInformation.endTime = workOrderBean.getData().get(i).getEndTime();
+                lockInformation.starTime = workOrderControData1.startTime;
+                lockInformation.endTime = workOrderControData1.endTime;
                 lockInformation.insert();
+                res = res + workOrderDealitBean.getWorkOrderNo() + ":" + workOrderControData1.startTime + ":" + workOrderControData1.endTime + ":" +workOrderDataItemBeanList.get(j).getLockNo()+ ":" + workOrderDataItemBeanList.get(j).getOptPwd() + ":" + workOrderDataItemBeanList.get(j).getType() + ":" + workOrderDataItemBeanList.get(j).getPointX() + ":" + workOrderDataItemBeanList.get(j).getPointY()+ "\r\n";
+            }
+            fileStream.fileStream(FileStream.sheetFile, FileStream.write, res.getBytes());
+            if (MainActivity.SLEEP.equals(MainActivity.state_sleep)) {
+                dialogWakeUp();
+                Toast.makeText(LockerProcessAtivity.this, "掌机未唤醒", Toast.LENGTH_LONG).show();
+            } else {
+                if (MainActivity.isDown)
+                    sendS00_sheet();
+                else
+                    addLog("正在初始化小掌机时间，请稍后再试！");
             }
         }
-
     }
 
     private String getUpService(com.saintsung.saintpmc.bean.WorkOrderBean workOrderBean) {
-        Gson gson=new Gson();
-        WorkOrderUpServiceBean workOrderUpServiceBean=new WorkOrderUpServiceBean();
-        List<WorkOrderItemBean> orderItemBeanList=new ArrayList<>();
+        Gson gson = new Gson();
+        WorkOrderUpServiceBean workOrderUpServiceBean = new WorkOrderUpServiceBean();
+        List<WorkOrderItemBean> orderItemBeanList = new ArrayList<>();
         workOrderUpServiceBean.setOptCode("WorkOrderResult");
-        for(WorkOrderDataBean workOrderBean1:workOrderBean.getData()){
-            WorkOrderItemBean workOrderItemBean=new WorkOrderItemBean();
+        for (WorkOrderDataBean workOrderBean1 : workOrderBean.getData()) {
+            WorkOrderItemBean workOrderItemBean = new WorkOrderItemBean();
             workOrderItemBean.setWorkOrderNo(workOrderBean1.getWorkOrderNo());
             workOrderItemBean.setOptTime(getSystemTime());
             workOrderItemBean.setOptType("0001");
             orderItemBeanList.add(workOrderItemBean);
         }
         workOrderUpServiceBean.setData(orderItemBeanList);
-        workOrderUpServiceBean.setSign(MD5.toMD5(workOrderUpServiceBean.getOptCode()+gson.toJson(workOrderUpServiceBean.getData())));
+        workOrderUpServiceBean.setSign(MD5.toMD5(workOrderUpServiceBean.getOptCode() + gson.toJson(workOrderUpServiceBean.getData())));
         return gson.toJson(workOrderUpServiceBean);
     }
 
@@ -386,6 +428,7 @@ public class LockerProcessAtivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
     }
+
     private String getUserId() {
         FileStream fileStream = new FileStream();
         byte[] by_UserID = fileStream.fileStream(FileStream.userLogin, FileStream.read, null);
@@ -541,7 +584,7 @@ public class LockerProcessAtivity extends AppCompatActivity {
                     i_GetVersion = 1; // 已经获取到固件号硬件号
                     if (i_ConnState == 1) {
                     /*
-					 * new Thread(new Runnable() {
+                     * new Thread(new Runnable() {
 					 *
 					 * @Override public void run() { // TODO Auto-generated
 					 * method stub connectionState.setText(R.string.connected);
@@ -613,11 +656,8 @@ public class LockerProcessAtivity extends AppCompatActivity {
                             that.connectionState.setText(R.string.connected);
 
                             connectionState.setText(R.string.connected); // 在未获取固件值硬件值前显示连接中
-
-
-                            // [[wk add
                             if (LockSetActivity.unlock_screw.equals(LockSetActivity.unlockType)) {
-                                // handLockNumber
+
                                 Byte state = b.getByte(LockSetActivity.unlock_screw);
                                 dialogLockNumber();
                             }
@@ -864,8 +904,8 @@ public class LockerProcessAtivity extends AppCompatActivity {
 
             case R.id.menu_back:
                 MainActivity.back = MainActivity.string_back;
-			/*
-			 * //check MainActivity flag_open if (!MainActivity.flag_open) {
+            /*
+             * //check MainActivity flag_open if (!MainActivity.flag_open) {
 			 * Intent intent=new Intent(); intent.setClass(getBaseContext(),
 			 * MainActivity.class); startActivity(intent); }
 			 */

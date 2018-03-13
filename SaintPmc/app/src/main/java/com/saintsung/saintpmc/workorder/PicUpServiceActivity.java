@@ -2,16 +2,16 @@ package com.saintsung.saintpmc.workorder;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -29,22 +29,15 @@ import com.example.qr_codescan.MipcaActivityCapture;
 import com.google.gson.Gson;
 import com.saintsung.saintpmc.MyApplication;
 import com.saintsung.saintpmc.R;
-import com.saintsung.saintpmc.asynctask.ModelFilteredFactory;
 import com.saintsung.saintpmc.asynctask.RetrofitRxAndroidHttp;
 import com.saintsung.saintpmc.bean.ServiceUpPhotoBean;
 import com.saintsung.saintpmc.configuration.MD5;
-import com.saintsung.saintpmc.lock.CommonResources;
-import com.saintsung.saintpmc.lock.ToastShow;
-import com.saintsung.saintpmc.tool.DataProcess;
 import com.saintsung.saintpmc.tool.ToastUtil;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -52,11 +45,6 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static com.saintsung.saintpmc.tool.DataProcess.ComplementZeor;
-import static com.saintsung.saintpmc.tool.DataProcess.byte2hex;
-import static com.saintsung.saintpmc.tool.DataProcess.getLoginReturn;
-import static com.saintsung.saintpmc.tool.DataProcess.readStream;
 
 /**
  * Created by XLzY on 2017/7/26.
@@ -115,13 +103,23 @@ public class PicUpServiceActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String state = Environment.getExternalStorageState(); // 判断是否存在sd卡
-                if (state.equals(Environment.MEDIA_MOUNTED)) { // 直接调用系统的照相机
-                    filePath = getFileName();
+                filePath = getFileName();
+                if (state.equals(Environment.MEDIA_MOUNTED)) {
+                    // 直接调用系统的照相机
+                    //判断是否是AndroidN以及更高的版本
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        ContentValues contentValues = new ContentValues(1);
+                        contentValues.put(MediaStore.Images.Media.DATA,filePath);
+                        Uri uri =PicUpServiceActivity.this.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,contentValues);
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+                        startActivityForResult(intent, REQUEST_ORIGINAL);
+                    } else {
                     Intent intent2 = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     Uri uri = Uri.fromFile(new File(filePath));
                     //为拍摄的图片指定一个存储的路径
                     intent2.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-                    startActivityForResult(intent2, REQUEST_ORIGINAL);
+                    startActivityForResult(intent2, REQUEST_ORIGINAL);}
                 } else {
                     showToast("请检查手机是否有SD卡");
                 }

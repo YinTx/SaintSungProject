@@ -1,6 +1,8 @@
 package com.saintsung.saintpmc.loading;
 
 
+import android.os.Build;
+
 import java.security.SecureRandom;
 
 import javax.crypto.Cipher;
@@ -27,7 +29,11 @@ public class AESUtils {
 
 	private static byte[] getRawKey(byte[] seed) throws Exception {
 		KeyGenerator kgen = KeyGenerator.getInstance("AES");
-		SecureRandom sr = SecureRandom.getInstance("SHA1PRNG", "Crypto");
+		SecureRandom sr;
+		if(Build.VERSION.SDK_INT >=23){
+			 sr = SecureRandom.getInstance("SHA1PRNG", new CryptoProvider());}
+		else{
+			 sr = SecureRandom.getInstance("SHA1PRNG", "Crypto");}
 		sr.setSeed(seed);
 		kgen.init(128, sr);
 		SecretKey skey = kgen.generateKey();

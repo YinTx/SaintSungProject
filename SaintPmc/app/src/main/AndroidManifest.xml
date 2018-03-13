@@ -33,7 +33,6 @@
         </activity>
         <activity android:name=".loading.SetIPaddress" />
         <activity android:name=".location.BasicNaviActivity" />
-        <activity android:name="com.saintsung.saintpmc.msgintercept.TextActivity" />
         <!-- 深圳的Activity 和 Service -->
         <activity
             android:name=".lock.DeviceScanActivity0"
@@ -73,6 +72,16 @@
         <activity
             android:name="com.example.qr_codescan.MipcaActivityCapture"
             android:theme="@style/AppTheme.NoActionBar" />
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.saintsung.saintpmc.fileProvider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
     </application>
     <uses-permission android:name="android.permission.GET_TASKS" />
     <!--   蓝牙权限  -->

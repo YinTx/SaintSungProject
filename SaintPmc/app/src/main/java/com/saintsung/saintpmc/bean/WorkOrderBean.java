@@ -14,6 +14,24 @@ public class WorkOrderBean {
     private List<WorkOrderDataBean> data=new ArrayList<>();
     private String result;
     private String resultMessage;
+    private String startTime;
+    private String endTime;
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
+    }
 
     public String getOptCode() {
         return optCode;

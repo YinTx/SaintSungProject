@@ -123,8 +123,6 @@ public class LoginActivity extends CheckPermissionsActivity implements OnClickLi
         ToastUtil.setTranslucent(this);
         setListener();
         initView();
-
-
     }
 
 
@@ -360,7 +358,6 @@ public class LoginActivity extends CheckPermissionsActivity implements OnClickLi
             }
         }
     }
-
     private String getResult(String username, String password) {
         Gson gson = new Gson();
         LoginBean loginBean = new LoginBean();
@@ -375,7 +372,6 @@ public class LoginActivity extends CheckPermissionsActivity implements OnClickLi
         return gson.toJson(loginBean);
     }
     FileStream fileStream = new FileStream();
-
     /**
      * 保存用户名和密码
      */

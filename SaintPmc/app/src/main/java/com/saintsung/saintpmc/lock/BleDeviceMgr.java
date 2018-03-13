@@ -60,9 +60,9 @@ public class BleDeviceMgr implements LeScanCallback{
 		//CXQ
 //	    /*
 		public final UUID uuid_service_read = UUID.fromString("00001910-0000-1000-8000-00805f9b34fb");
-		public final UUID uuid_service_write = UUID.fromString("00001910-0000-1000-8000-00805f9b34fb");
+		public final UUID uuid_service_write= UUID.fromString("00001910-0000-1000-8000-00805f9b34fb");
 		public final UUID uuid_characteristic_read = UUID.fromString("0000fff4-0000-1000-8000-00805f9b34fb");
-		public final UUID uuid_characteristic_write = UUID.fromString("0000FFF2-0000-1000-8000-00805f9b34fb");
+		public final UUID uuid_characteristic_write= UUID.fromString("0000FFF2-0000-1000-8000-00805f9b34fb");
 		public final UUID uuid_CLIENT_CHARACTERISTIC_CONFIG = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 		//	    */
 		BluetoothGattCharacteristic mCharacteristicRead = null,mCharacteristicWrite = null,bluetoothGattCharacteristicSet,bluetoothGattCharacteristicBaudRate;
@@ -224,6 +224,7 @@ public class BleDeviceMgr implements LeScanCallback{
 		//发送数据
 		//data length can >= 20 bytes
 		public boolean Write(String string,byte[] data){
+			Log.e("Tag","Send:"+HexUtil.formatHexString(data));
 			BluetoothGatt gatt = null;
 			BluetoothGattCharacteristic charWrite = null;
 
@@ -303,6 +304,7 @@ public class BleDeviceMgr implements LeScanCallback{
 //[[CXQ
 			byte[]first = new byte[20];
 			System.arraycopy(data, 0, first, 0, 20);
+			Log.e("TAG","first:"+HexUtil.formatHexString(first));
 			if (mConnected) {
 				cWrite.setValue(first);
 				success_first = gatt.writeCharacteristic(cWrite);
@@ -587,8 +589,6 @@ public class BleDeviceMgr implements LeScanCallback{
 								descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
 								mBluetoothGatt.writeDescriptor(descriptor);
 							}
-							//]]
-//
 						}
 						service = gatt.getService(uuid_service_write);
 						if(service == null){
@@ -755,7 +755,6 @@ public class BleDeviceMgr implements LeScanCallback{
 				}
 			}
 			if(gatt == null){
-				//[[wk add
 				mDeviceClient.onError(new Exception("gatt="+gatt));
 				try {
 					string+="---gatt="+gatt;
@@ -764,7 +763,6 @@ public class BleDeviceMgr implements LeScanCallback{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				//]]
 				return false;
 			}
 			if (this.mSendPending.size() > 0) {
@@ -936,7 +934,7 @@ public class BleDeviceMgr implements LeScanCallback{
 		// 接收子包，判断是不是最一后，所有子包接收完后，要组一个大包给Client
 		private void recvData(byte[] data) {
 			// onWriteResponse(0);
-
+			Log.e("TAG","recvData:"+HexUtil.formatHexString(data));
 			StringBuffer stringBuffer = new StringBuffer();
 			for (int i = 0; i < data.length; i++) {
 				stringBuffer.append(String.format("%02x ", data[i]));

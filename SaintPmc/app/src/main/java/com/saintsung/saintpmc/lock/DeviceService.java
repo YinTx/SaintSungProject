@@ -29,6 +29,8 @@ import com.saintsung.saintpmc.asynctask.QueryAddressTask;
 import com.saintsung.saintpmc.asynctask.RetrofitRxAndroidHttp;
 import com.saintsung.saintpmc.bean.LockLogBean;
 import com.saintsung.saintpmc.bean.LockLogUpServiceBean;
+import com.saintsung.saintpmc.bean.LockNumberBean;
+import com.saintsung.saintpmc.bean.LockPwdServiceBean;
 import com.saintsung.saintpmc.bean.WorkOrderBean;
 import com.saintsung.saintpmc.orderdatabase.LockInformation;
 import com.saintsung.saintpmc.orderdatabase.LockInformation$Table;
@@ -394,7 +396,7 @@ public class DeviceService extends Service implements DeviceClient, CommomInterf
                         // send open screw
                         if (MainActivity.handLockNumber != null) {
                         /*
-						 * //send test byte[] cmdBytes =
+                         * //send test byte[] cmdBytes =
 						 * Command.getInstance().AppSendLockerKey
 						 * (MCUCommand.opcode_open_screw
 						 * ,MainActivity.handLockNumber,"000359168168000",0);
@@ -1157,6 +1159,40 @@ public class DeviceService extends Service implements DeviceClient, CommomInterf
             e.printStackTrace();
         }
     }
+    private void dataProce(String string, final OnReadKey on){
+        Log.e("TAG","D:"+string);
+        try {
+            Gson gson = new Gson();
+            final LockPwdServiceBean lockPwdServiceBean = gson.fromJson(string, LockPwdServiceBean.class);
+            if (lockPwdServiceBean.getResult().equals("0000")) {
+                if (!lockPwdServiceBean.getData().getOptPwd().equals("")) {
+                    mDevice.PostRun(new Runnable() {
+                        @Override
+                        public void run() {
+                            on.On(lockPwdServiceBean.getData().getOptPwd(), lockPwdServiceBean.getData().getLockType(), null);
+                        }
+                    });
+                } else
+                    addLog((byte) 0, "没有权限开此设备");
+            } else
+                addLog((byte) 0, "获取开锁码失败");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    private String getLock(String number) {
+        Gson gson = new Gson();
+        String str = "";
+        LockPwdServiceBean lockPwdServiceBean = new LockPwdServiceBean();
+        LockNumberBean lockNumberBean = new LockNumberBean();
+        lockNumberBean.setLockNo(number);
+        lockPwdServiceBean.setOptCode("WorkOrderOnline");
+        lockPwdServiceBean.setOptUserNumber(MyApplication.getUserId());
+        lockPwdServiceBean.setData(lockNumberBean);
+        String sss = lockPwdServiceBean.getOptCode() + lockPwdServiceBean.getOptUserNumber() + gson.toJson(lockPwdServiceBean.getData());
+        lockPwdServiceBean.setSign(MD5.toMD5(sss));
+        return gson.toJson(lockPwdServiceBean);
+    }
 
     interface OnReadKey {
         void On(String key, String lockType, Exception e);
@@ -1164,22 +1200,17 @@ public class DeviceService extends Service implements DeviceClient, CommomInterf
 
     String readKey(final String number, final OnReadKey on) {
         String key = "FFFFFFFFFFFFFFF|FFFF";
-        final LockInformation lockInformation = new Select().from(LockInformation.class).where(Condition.column(LockInformation$Table.LOCKNO).is(number)).querySingle();
-        if (lockInformation == null) {
-            on.On(null, null, new Exception("没有权限开此设备!"));
-        } else {
-            Date day = new Date();
-            if (DataProcess.isInDate(day, lockInformation.starTime, lockInformation.endTime)) {
-                mDevice.PostRun(new Runnable() {
-                    @Override
-                    public void run() {
-                        on.On(lockInformation.optPwd, lockInformation.type, null);
-                    }
-                });
-            } else {
-                on.On(null, null, new Exception("工单已过期!"));
+        RetrofitRxAndroidHttp retrofitRxAndroidHttp = new RetrofitRxAndroidHttp();
+        retrofitRxAndroidHttp.serviceConnect(MyApplication.getUrl(), getLock(number), new Action1<ResponseBody>() {
+            @Override
+            public void call(ResponseBody responseBody) {
+                try {
+                    dataProce(responseBody.string(),on);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        }
+        });
         switch (mAutoTest) {
             case LockSetActivity.unlockAutoReconnectTwo:
             case LockSetActivity.unlockContinue:
@@ -2294,7 +2325,7 @@ public class DeviceService extends Service implements DeviceClient, CommomInterf
         String str_UserInfo = "";
         String str_DeviceID = "";
         FileStream fileStream = new FileStream();
-        List<LockLogBean> lockLogBeanList=new ArrayList<>();
+        List<LockLogBean> lockLogBeanList = new ArrayList<>();
         if (str_UserInfo.length() <= 0) {
             // get userId
             // FileStream fileStream=new FileStream();
@@ -2349,7 +2380,7 @@ public class DeviceService extends Service implements DeviceClient, CommomInterf
                 systemTime = temp.substring(9, 9 + 14); // 时间
                 logState = temp.substring(23, 23 + 1); // 结果
                 // 开关锁记录
-                LockLogBean lockLogBean=getLockInfo(logState,systemTime,lockNumber);
+                LockLogBean lockLogBean = getLockInfo(logState, systemTime, lockNumber);
                 lockLogBeanList.add(lockLogBean);
 
             }
@@ -2362,7 +2393,7 @@ public class DeviceService extends Service implements DeviceClient, CommomInterf
         boolean wlanFlag = NetworkConnect.checkNet(getApplicationContext());
         if (wlanFlag) {
             // 请求打包
-            if(lockLogBeanList.size()<1)
+            if (lockLogBeanList.size() < 1)
                 return;
             upLoadOpenLockInfo(getStr(lockLogBeanList));
         } else {
@@ -3148,6 +3179,7 @@ public class DeviceService extends Service implements DeviceClient, CommomInterf
             }
         }
     };
+
     private LockLogBean getLockInfo(String type, String time, String number) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -3155,10 +3187,10 @@ public class DeviceService extends Service implements DeviceClient, CommomInterf
         if (time == null) {
             Date date = new Date();
             data = sdf.format(date);
-        } else{
+        } else {
             try {
-                Date strr=sdf2.parse(time);
-                data=sdf.format(strr);
+                Date strr = sdf2.parse(time);
+                data = sdf.format(strr);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -3178,15 +3210,15 @@ public class DeviceService extends Service implements DeviceClient, CommomInterf
         LockLogUpServiceBean lockLogUpServiceBean = new LockLogUpServiceBean();
         lockLogUpServiceBean.setOptCode("LockLogUpload");
         lockLogUpServiceBean.setData(lockLogBeans);
-        String dataStr=gson.toJson(lockLogUpServiceBean.getData());
-        lockLogUpServiceBean.setSign(MD5.toMD5(lockLogUpServiceBean.getOptCode()+ dataStr));
+        String dataStr = gson.toJson(lockLogUpServiceBean.getData());
+        lockLogUpServiceBean.setSign(MD5.toMD5(lockLogUpServiceBean.getOptCode() + dataStr));
         return gson.toJson(lockLogUpServiceBean);
     }
 
     private void dataProcessing(String string) {
-        Log.e("TAG","Result:"+string);
-        Gson gson=new Gson();
-        LockLogUpServiceBean lockLogUpServiceBean=gson.fromJson(string,LockLogUpServiceBean.class);
+        Log.e("TAG", "Result:" + string);
+        Gson gson = new Gson();
+        LockLogUpServiceBean lockLogUpServiceBean = gson.fromJson(string, LockLogUpServiceBean.class);
         addLog((byte) 0, lockLogUpServiceBean.getResultMessage());
     }
 }
