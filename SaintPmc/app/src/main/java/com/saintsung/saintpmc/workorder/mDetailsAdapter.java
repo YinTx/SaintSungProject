@@ -15,7 +15,7 @@ public class mDetailsAdapter extends BaseAdapter {
 	private LayoutInflater mInflater;
 	private List mArrayAdapter;
 	private List<String> list;
-	mDetailsAdapter(Context context, List<String> list) {
+	public mDetailsAdapter(Context context, List<String> list) {
 		this.mInflater = LayoutInflater.from(context);
 		this.list=list;
 	}

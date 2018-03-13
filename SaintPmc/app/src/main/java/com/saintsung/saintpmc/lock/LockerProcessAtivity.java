@@ -355,7 +355,7 @@ public class LockerProcessAtivity extends AppCompatActivity {
             for (int j = 0; j < workOrderDealitBean.getData().size(); j++) {
                 LockInformation lockInformation = new LockInformation();
                 lockInformation.lockNo = workOrderDataItemBeanList.get(j).getLockNo();
-                lockInformation.assetno = workOrderDataItemBeanList.get(j).getAssetno();
+                lockInformation.assetno = workOrderDataItemBeanList.get(j).getAssetNo();
                 lockInformation.optPwd = workOrderDataItemBeanList.get(j).getOptPwd();
                 lockInformation.pointX = workOrderDataItemBeanList.get(j).getPointX();
                 lockInformation.pointY = workOrderDataItemBeanList.get(j).getPointY();

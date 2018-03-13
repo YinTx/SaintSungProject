@@ -30,10 +30,15 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,12 +57,15 @@ import com.amap.api.maps.model.LatLng;
 
 import com.google.gson.Gson;
 
+import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.saintsung.saintpmc.asynctask.RetrofitRxAndroidHttp;
 
 import com.saintsung.saintpmc.bean.QueryBureauNumberBean2;
 
+import com.saintsung.saintpmc.bean.WorkOrderDataItemBean;
+import com.saintsung.saintpmc.bean.WorkOrderDealitBean;
 import com.saintsung.saintpmc.loading.LoginActivity;
 
 import com.saintsung.saintpmc.loading.User;
@@ -73,6 +81,7 @@ import com.saintsung.saintpmc.lock.JSONArray;
 import com.saintsung.saintpmc.lock.JSONException;
 import com.saintsung.saintpmc.lock.JSONObject;
 import com.saintsung.saintpmc.lock.LockSetActivity;
+import com.saintsung.saintpmc.lock.MD5;
 import com.saintsung.saintpmc.lock.SetActivity0;
 import com.saintsung.saintpmc.lock.SetAllActivity;
 import com.saintsung.saintpmc.lock.User_Share;
@@ -93,12 +102,18 @@ import com.saintsung.saintpmc.orderdatabase.LstLookBean;
 
 import com.saintsung.saintpmc.orderdatabase.WorkOrderControData;
 import com.saintsung.saintpmc.orderdatabase.WorkOrderControData$Table;
+import com.saintsung.saintpmc.orderdatabase.WorkOrderDetailsBean;
+import com.saintsung.saintpmc.orderdatabase.WorkOrderDetailsBean$Table;
 import com.saintsung.saintpmc.tool.DataProcess;
 import com.saintsung.saintpmc.tool.ToastUtil;
 
 import com.saintsung.saintpmc.workorder.PicWorkOrderActivity;
 import com.saintsung.saintpmc.workorder.ScrapActivity;
+import com.saintsung.saintpmc.workorder.WorkOrderDetails2;
+import com.saintsung.saintpmc.workorder.WorkOrderDetailsItem;
 import com.saintsung.saintpmc.workorder.WorkOrderDetailsPic;
+import com.saintsung.saintpmc.workorder.mDetailsAdapter;
+import com.saintsung.saintpmc.workorder.mDetailsAdapterItem2;
 
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -142,7 +157,7 @@ import static com.saintsung.saintpmc.tool.DataProcess.*;
  */
 
 public class MainActivity extends CheckPermissionsActivity
-        implements NavigationView.OnNavigationItemSelectedListener, AMap.CancelableCallback, LocationSource, AMapLocationListener, ActivityCompat.OnRequestPermissionsResultCallback {
+        implements NavigationView.OnNavigationItemSelectedListener, AMap.CancelableCallback, LocationSource, AMapLocationListener, ActivityCompat.OnRequestPermissionsResultCallback,View.OnClickListener{
     public static Intent intentBluetoothLeService;
     public static BluetoothLeService bluetoothLeService;
     public static ServiceConnection mServiceConnection;
@@ -220,6 +235,7 @@ public class MainActivity extends CheckPermissionsActivity
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
             if ((System.currentTimeMillis() - exitTime) > 2000) {
+//                startActivity(new Intent(MainActivity.this, WorkOrderDetails2.class));
                 Toast.makeText(getApplicationContext(), "再按一次退出程序", Toast.LENGTH_SHORT).show();
                 exitTime = System.currentTimeMillis();
             } else {
@@ -273,20 +289,6 @@ public class MainActivity extends CheckPermissionsActivity
         }
 
     }
-
-
-    private void MyThread() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                com.saintsung.saintpmc.asynctask.SocketConnect socketConnect = new com.saintsung.saintpmc.asynctask.SocketConnect();
-                String str = "L008" + userId + MainActivity.IMEI;
-                str = CommonResources.createRequestPacket(str);
-                String result = socketConnect.sendDate(str);
-            }
-        }).start();
-    }
-
     private void MyThread4(final String dbtable, final String packet) {
         new Thread(new Runnable() {
             @Override
@@ -304,7 +306,6 @@ public class MainActivity extends CheckPermissionsActivity
                     try {
                         JSONArray jsonArray = new JSONArray(result1);
                         List<DicLockSiteBean> peoples = new Select().from(DicLockSiteBean.class).queryList();
-//                        peoples.r
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject jsonObject = jsonArray.getJSONObject(i);
                             boolean flag3 = true;
@@ -459,6 +460,78 @@ public class MainActivity extends CheckPermissionsActivity
         return res;
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.act_up_move:
+                actUpMove.setVisibility(View.GONE);
+                moveUpDown.setVisibility(View.VISIBLE);
+                TranslateAnimation translateAnimation = new TranslateAnimation(
+                        Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF,
+                        0, Animation.RELATIVE_TO_SELF, 1.0f,
+                        Animation.RELATIVE_TO_SELF, 0);
+                translateAnimation.setDuration(1000);
+                moveUpDown.setAnimation(translateAnimation);
+                translateAnimation.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                        upMove.setVisibility(View.VISIBLE);
+                        downMove.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        upMove.setVisibility(View.GONE);
+                        actDownMove.setVisibility(View.VISIBLE);
+                        refreshAdapterData();
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+                break;
+            case R.id.act_down_move:
+                actDownMove.setVisibility(View.GONE);
+                downMove.setVisibility(View.VISIBLE);
+                TranslateAnimation translateAnimation2 = new TranslateAnimation(
+                        Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF,
+                        0, Animation.RELATIVE_TO_SELF, 0,
+                        Animation.RELATIVE_TO_SELF, 1.0f);
+                translateAnimation2.setDuration(1000);
+                moveUpDown.setAnimation(translateAnimation2);
+                translateAnimation2.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        moveUpDown.setVisibility(View.GONE);
+                        actUpMove.setVisibility(View.VISIBLE);
+                        refreshAdapterData();
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+                break;
+        }
+    }
+
+    private void refreshAdapterData() {
+        listAdapter.clear();
+        final List<WorkOrderControData> peoples = new Select().from(WorkOrderControData.class).queryList();
+        for(int i=0;i<peoples.size();i++){
+            String orderNo=peoples.get(i).workOrderNumber;
+            listAdapter.add(orderNo);
+        }
+        adapter.notifyDataSetChanged();
+    }
+
     class MyLookUp extends AsyncTask<String, String, String> {
         @SuppressWarnings("deprecation")
         @Override
@@ -492,34 +565,9 @@ public class MainActivity extends CheckPermissionsActivity
     }
 
     //---------------------------------------------------- 这是一个分割线-----------------------------
-    private String getZerofill(String str) {
-        int str1 = str.length();
-        for (int i = 0; i < 14 - str1; i++) {
-            str = str + "0";
-        }
-        return str;
-    }
 
-    private String strReplace(String str) {
-        str = str.replace(" ", "");
-        str = str.replace("-", "");
-        str = str.replace(":", "");
-        return str;
-    }
-
-    private static String[] getUs(String[] user1, String[] user2) {
-        String[] rtUser = new String[user1.length + user2.length];
-        for (int i = 0; i < user1.length; i++) {
-            rtUser[i] = user1[i];
-        }
-        for (int i = user1.length; i < user1.length + user2.length; i++) {
-            rtUser[i] = user2[i - user1.length];
-        }
-        return rtUser;
-    }
 
     TextView mYText;
-    Button wordOdown2;
     LstLookBean lstLookBean;
     LstElecUserLockBean lstElecUserLockBean;
     LstElecUserBean lstElecUserBean;
@@ -528,12 +576,20 @@ public class MainActivity extends CheckPermissionsActivity
     LstElecUserMeteringBean lstElecUserMeteringBean;
     DicLockSiteBean dicLockSiteBean = new DicLockSiteBean();
     int con = 0;
-
+    LinearLayout moveUpDown;
+    ImageButton actUpMove,downMove,upMove,actDownMove;
+    ListView myLockRecord;
+    mDetailsAdapter adapter;
+    private List<String> listAdapter=new ArrayList<>();
     private void initView() {
         RetrofitRxAndroidHttp retrofitRxAndroidHttp = new RetrofitRxAndroidHttp();
         List<DoorAndMeterDataBase> doorAndMeterDataBase = new Select().from(DoorAndMeterDataBase.class).queryList();
         for (DoorAndMeterDataBase doorAndMeterDataBase1 : doorAndMeterDataBase) {
             retrofitRxAndroidHttp.serviceConnect(MyApplication.getUrl(), doorAndMeterDataBase1.jsonStrInService, action2);
+        }
+        List<LockInformation> lockInformations=new Select().from(LockInformation.class).queryList();
+        for(LockInformation lockInformation:lockInformations){
+            lockInformation.delete();
         }
         String userName = MyApplication.getUserName();
         retrofitRxAndroidHttp.serviceConnect(MyApplication.getUrl(), getGsonStr(), action1);
@@ -551,7 +607,26 @@ public class MainActivity extends CheckPermissionsActivity
         mySharedPreferences = getSharedPreferences("orderInfo",
                 Activity.MODE_PRIVATE);
         mMap = (MapView) findViewById(R.id.mMap);
+        moveUpDown = (LinearLayout) findViewById(R.id.move_up_down);
+        actUpMove = (ImageButton) findViewById(R.id.act_up_move);
+        downMove = (ImageButton) findViewById(R.id.down_move);
+        upMove = (ImageButton) findViewById(R.id.up_move);
+        actDownMove = (ImageButton) findViewById(R.id.act_down_move);
         btnLocation = (ImageButton) findViewById(R.id.mbtn_d);
+        myLockRecord = (ListView) findViewById(R.id.my_lock_record);
+        adapter = new mDetailsAdapter(this, listAdapter);
+        myLockRecord.setAdapter(adapter);
+        refreshAdapterData();
+        actUpMove.setOnClickListener(this);
+        actDownMove.setOnClickListener(this);
+        myLockRecord.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                RetrofitRxAndroidHttp retrofitRxAndroidHttp = new RetrofitRxAndroidHttp();
+                retrofitRxAndroidHttp.serviceConnect(MyApplication.getUrl(), getWorkOrderDealitStr(listAdapter.get(position)), action3);
+            }
+        });
+
         btnLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -565,23 +640,58 @@ public class MainActivity extends CheckPermissionsActivity
                 }
             }
         });
-        wordOdown = (Button) findViewById(R.id.wordOdown);
-        wordOdown.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MyThread();
-            }
-        });
-        mYText = (TextView) findViewById(R.id.myText);
-        upLock = (Button) findViewById(R.id.up_lock);
-        upLock.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                byte[] bytes = fileStream.fileStream(FileStream.log, FileStream.read, null);
-            }
-        });
-    }
 
+        mYText = (TextView) findViewById(R.id.myText);
+    }
+    private String getWorkOrderDealitStr(String number) {
+        Gson gson = new Gson();
+        String sign = "";
+        WorkOrderDealitBean workOrderDealitBean = new WorkOrderDealitBean();
+        workOrderDealitBean.setOptCode("GetWorkOrderDetailInfos");
+        workOrderDealitBean.setWorkOrderNo(number);
+        workOrderDealitBean.setNums("0");
+        workOrderDealitBean.setLockNum("2000");
+        workOrderDealitBean.setCntNum("1");
+        workOrderDealitBean.setSign(MD5.toMD5(workOrderDealitBean.getOptCode() + workOrderDealitBean.getWorkOrderNo() + workOrderDealitBean.getNums() + workOrderDealitBean.getCntNum() + workOrderDealitBean.getLockNum() + workOrderDealitBean.getData()));
+        return gson.toJson(workOrderDealitBean);
+    }
+    private Action1<ResponseBody> action3 = new Action1<ResponseBody>() {
+
+        @Override
+        public void call(ResponseBody responseBody) {
+            try {
+                dataProces(responseBody.string());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    };
+    private void dataProces(String string) {
+        Log.e("TAG","sss:"+string);
+        Gson gson = new Gson();
+        WorkOrderDealitBean workOrderDealitBean = gson.fromJson(string, WorkOrderDealitBean.class);
+        if (workOrderDealitBean.getResult().equals("0000")) {
+            WorkOrderControData workOrderControData1 = new Select().from(WorkOrderControData.class).where(Condition.column(WorkOrderControData$Table.WORKORDERNUMBER).is(workOrderDealitBean.getWorkOrderNo())).querySingle();
+            List<WorkOrderDataItemBean> workOrderDataItemBeanList = workOrderDealitBean.getData();
+            String res = "";
+            for (int j = 0; j < workOrderDealitBean.getData().size(); j++) {
+                LockInformation lockInformation = new LockInformation();
+                lockInformation.lockNo = workOrderDataItemBeanList.get(j).getLockNo();
+                lockInformation.assetno = workOrderDataItemBeanList.get(j).getAssetNo();
+                lockInformation.optPwd = workOrderDataItemBeanList.get(j).getOptPwd();
+                lockInformation.pointX = workOrderDataItemBeanList.get(j).getPointX();
+                lockInformation.pointY = workOrderDataItemBeanList.get(j).getPointY();
+                lockInformation.type = workOrderDataItemBeanList.get(j).getType();
+                lockInformation.starTime = workOrderControData1.startTime;
+                lockInformation.endTime = workOrderControData1.endTime;
+                lockInformation.workOrderNumber=workOrderControData1.workOrderNumber;
+                lockInformation.insert();
+            }
+            Intent intent=new Intent(MainActivity.this,WorkOrderDetailsItem.class);
+            intent.putExtra("workOrder",workOrderControData1.workOrderNumber);
+            startActivity(intent);
+        }
+    }
     private Action1<ResponseBody> action2 = new Action1<ResponseBody>() {
         @Override
         public void call(ResponseBody responseBody) {
@@ -643,18 +753,6 @@ public class MainActivity extends CheckPermissionsActivity
                 workOrderControData.workTime = sdf.format(date);
                 workOrderControData.update();
             }
-
-//            for (int j = 0; j < workOrderDataItemBeanList.size(); j++) {
-//                lockInformation.lockNo = workOrderDataItemBeanList.get(j).getLockNo();
-//                lockInformation.assetno = workOrderDataItemBeanList.get(j).getAssetno();
-//                lockInformation.optPwd = workOrderDataItemBeanList.get(j).getOptPwd();
-//                lockInformation.pointX = workOrderDataItemBeanList.get(j).getPointX();
-//                lockInformation.pointY = workOrderDataItemBeanList.get(j).getPointY();
-//                lockInformation.type = workOrderDataItemBeanList.get(j).getType();
-//                lockInformation.starTime = workOrderBean.getData().get(i).getStartTime();
-//                lockInformation.endTime = workOrderBean.getData().get(i).getEndTime();
-//                lockInformation.insert();
-//            }
         }
         long consumingTime = System.nanoTime() - startTime;
         Log.e("TAG", "time:" + consumingTime);
@@ -672,9 +770,6 @@ public class MainActivity extends CheckPermissionsActivity
         workOrderBean.setSign(sign);
         return gson.toJson(workOrderBean);
     }
-
-    Button wordOdown;
-
     private void initMap(Bundle savedInstanceState) {
         mMap.onCreate(savedInstanceState);
         myAmap = mMap.getMap();

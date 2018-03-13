@@ -38,7 +38,6 @@
         android:text="L013"
         />
     <ImageButton
-        android:visibility="gone"
         android:id="@+id/act_up_move"
         android:background="@null"
         android:layout_alignParentBottom="true"

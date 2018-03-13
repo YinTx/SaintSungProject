@@ -22,6 +22,7 @@ import com.amap.api.navi.model.AimLessModeStat;
 import com.amap.api.navi.model.NaviInfo;
 import com.amap.api.navi.model.NaviLatLng;
 import com.autonavi.tbt.TrafficFacilityInfo;
+import com.iflytek.cloud.speech.SpeechConstant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,7 @@ public class BaseActivity extends Activity implements AMapNaviListener, AMapNavi
 
     protected AMapNaviView mAMapNaviView;
     protected AMapNavi mAMapNavi;
-    protected TTSController mTtsManager;
+//    protected TTSController mTtsManager;
     protected NaviLatLng mEndLatlng;
     protected NaviLatLng  mStartLatlng;
     protected final List<NaviLatLng> sList = new ArrayList<>();
@@ -52,12 +53,13 @@ public class BaseActivity extends Activity implements AMapNaviListener, AMapNavi
         mEndLatlng=new NaviLatLng(end[0],end[1]);
         mStartLatlng=new NaviLatLng(Point[0],Point[1]);
         //实例化语音引擎
-         mTtsManager = TTSController.getInstance(getApplicationContext());
-        mTtsManager.init();
-        mTtsManager.startSpeaking();
+//        mTtsManager = TTSController.getInstance(getApplicationContext());
+//        mTtsManager.init();
+//        mTtsManager.startSpeaking();
+//        SpeechUtility.createUtility(getApplicationContext(), SpeechConstant.APPID + "=" + appId);
         mAMapNavi = AMapNavi.getInstance(getApplicationContext());
         mAMapNavi.addAMapNaviListener(this);
-        mAMapNavi.addAMapNaviListener(mTtsManager);
+//        mAMapNavi.addAMapNaviListener(mTtsManager);
         mAMapNavi.setEmulatorNaviSpeed(75);
         sList.add(mStartLatlng);
         eList.add(mEndLatlng);
@@ -75,7 +77,7 @@ public class BaseActivity extends Activity implements AMapNaviListener, AMapNavi
         mAMapNaviView.onPause();
 
 //        仅仅是停止你当前在说的这句话，一会到新的路口还是会再说的
-        mTtsManager.stopSpeaking();
+//        mTtsManager.stopSpeaking();
 //
 //        停止导航之后，会触及底层stop，然后就不会再有回调了，但是讯飞当前还是没有说完的半句话还是会说完
 //        mAMapNavi.stopNavi();
@@ -88,7 +90,7 @@ public class BaseActivity extends Activity implements AMapNaviListener, AMapNavi
         //since 1.6.0 不再在naviview destroy的时候自动执行AMapNavi.stopNavi();请自行执行
         mAMapNavi.stopNavi();
         mAMapNavi.destroy();
-        mTtsManager.destroy();
+//        mTtsManager.destroy();
     }
 
     @Override
