@@ -884,8 +884,8 @@ public class SetAllActivity extends Activity {
 		byteArray = fileStream.fileStream(FileStream.socket, FileStream.read, null);
 		if (byteArray.length == 0) {
 			// start SocketAddress
-			intent.setClass(this, SocketActivity.class);
-			startActivity(intent);
+//			intent.setClass(this, SocketActivity.class);
+//			startActivity(intent);
 		} else {
 			if (FileStream.read.equals(state)) {
 //				string = new String(byteArray);
@@ -893,10 +893,10 @@ public class SetAllActivity extends Activity {
 //				serviceURL.setText("地址:" + stringArray[0] + "\n端口:" + stringArray[1]);
 			} else if (FileStream.write.equals(state)) {
 				// start SocketAddress
-				intent.setClass(this, SocketActivity.class);
-				intent.putExtra(SocketConnect.socketAddress, stringArray[0]);
-				intent.putExtra(SocketConnect.socketPort, stringArray[1]);
-				startActivity(intent);
+//				intent.setClass(this, SocketActivity.class);
+//				intent.putExtra(SocketConnect.socketAddress, stringArray[0]);
+//				intent.putExtra(SocketConnect.socketPort, stringArray[1]);
+//				startActivity(intent);
 			}
 		}
 	}

@@ -12,14 +12,8 @@ import com.raizlabs.android.dbflow.sql.language.Select;
 import com.saintsung.saintpmc.R;
 import com.saintsung.saintpmc.orderdatabase.LockInformation;
 import com.saintsung.saintpmc.orderdatabase.LockInformation$Table;
-import com.saintsung.saintpmc.orderdatabase.LstLookBean;
-
-import com.saintsung.saintpmc.orderdatabase.LstLookBean$Table;
-import com.saintsung.saintpmc.orderdatabase.WorkOrderBean;
 
 import com.saintsung.saintpmc.orderdatabase.WorkOrderBean$Table;
-import com.saintsung.saintpmc.orderdatabase.WorkOrderDetailsBean;
-
 import java.util.List;
 
 public class mDetailsAdapterItem2 extends BaseAdapter {

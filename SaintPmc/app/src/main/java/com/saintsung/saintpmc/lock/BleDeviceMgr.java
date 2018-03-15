@@ -438,10 +438,8 @@ public class BleDeviceMgr implements LeScanCallback{
 		public void onConnectionStateChange(BluetoothGatt gatt,int status,int newState) {
 			Log.d("BluetoothGatt","BluetoothGatt "+"onConnectionStateChange");
 			if (newState == BluetoothProfile.STATE_CONNECTED) {
-//[[cxq
 				mConnected = true;
 				MainActivity.state_sleep=null;
-//]]
 				this.PostRun(new Runnable(){
 					@Override
 					public void run() {
@@ -449,99 +447,16 @@ public class BleDeviceMgr implements LeScanCallback{
 					}
 				});
 			} else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-
-				//	refreshDeviceCache();
-//[[cxq
 				mConnected = false;
-
 				Disconnect();
-/*
-				mBluetoothGatt.disconnect();
-				DeviceClient client = null;
-				synchronized(this) {
-					client = mDeviceClient;
-				}
-					if(client != null) {
-						client.onDisconnected();
-						//[[wk add
-						try {
-							WLog.logFile("接收到蓝牙模组返回的断开连接状态");
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				synchronized(this){
-					mDeviceClient = null;
-				}
-*/
-
-/*		20170913
-//]]
-            	//如果不是调用disconnect引起的，则自动重启系统蓝牙并重新连接
-            	this.mHandler.post(new Runnable(){
-					@Override
-					public void run() {
-						DeviceClient client = null;
-						synchronized(this){
-							client = mDeviceClient;
-						}
-						if(client != null){
-							client.onDisconnected();
-							//[[wk add
-							try {
-								WLog.logFile("接收到蓝牙模组返回的断开连接状态");
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							//]]
-    						synchronized(this){
-    							mDeviceClient = null;
-    						}
-						}
-						quitThread();
-					}
-				});
-            }
-
-			//[[wk add
-            else if (newState==133) {
-				try {
-					WLog.logFile("onConnectionStateChange newState="+newState);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-            	Disconnect();
-		        BluetoothManager bluetoothManager = (BluetoothManager) getApplicationContext().getSystemService(Context.BLUETOOTH_SERVICE);
-		        final BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
-		        bluetoothAdapter.disable();
-		        try {
-					Thread.sleep(1000);
-					bluetoothAdapter.enable();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				*/
 			}
-
-			//]]
-/* 20170914
-		//	super.onConnectionStateChange(gatt, status, newState);
-*/
 		}
 		void quitThread(){
 			Device.this.mCharacteristicRead = null;
 			Device.this.mCharacteristicWrite = null;
-//			/*
-			//[[wk
 			Device.this.bluetoothGattCharacteristicSet = null;
 			Device.this.bluetoothGattCharacteristicBaudRate = null;
 			MainActivity.connect_state=null;
-			//]]
-//        	*/
 			Device.this.mPendingDataList.clear();
 			Device.this.mSendPending.clear();
 			Device.this.mSendTrying = 0;
@@ -581,9 +496,6 @@ public class BleDeviceMgr implements LeScanCallback{
 
 						if ((characteristicProperties | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
 							gatt.setCharacteristicNotification(cRead, true);
-//CXQ
-
-							//This is config notification.
 							if (uuid_characteristic_read.equals(cRead.getUuid())) {
 								BluetoothGattDescriptor descriptor = cRead.getDescriptor(uuid_CLIENT_CHARACTERISTIC_CONFIG);
 								descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
@@ -600,18 +512,13 @@ public class BleDeviceMgr implements LeScanCallback{
 							client.onError(new Exception("not write characteristic"));
 							return;
 						}
-//		                cWrite.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
 						cWrite.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
-
 						Device.this.mCharacteristicRead = cRead;
 						Device.this.mCharacteristicWrite = cWrite;
-
 						mDeviceClient.onConnected();
-
 					}
 				});
 			}
-
 			super.onServicesDiscovered(gatt, status);
 		}
 		@Override
@@ -645,29 +552,6 @@ public class BleDeviceMgr implements LeScanCallback{
 			}
 			super.onCharacteristicChanged(gatt, characteristic);
 		}
-
-		/**
-		 * Clears the internal cache and forces a refresh of the services from the
-		 * remote device.
-		 */
-		public boolean refreshDeviceCache() {
-			if (mBluetoothGatt != null) {
-				try {
-					BluetoothGatt localBluetoothGatt = mBluetoothGatt;
-					Method localMethod = localBluetoothGatt.getClass().getMethod(
-							"refresh", new Class[0]);
-					if (localMethod != null) {
-						boolean bool = ((Boolean) localMethod.invoke(
-								localBluetoothGatt, new Object[0])).booleanValue();
-						return bool;
-					}
-				} catch (Exception localException) {
-					Log.i(TAG, "An exception occured while refreshing device");
-				}
-			}
-			return false;
-		}
-
 		void onWriteResponse(int status){
 			if (status == BluetoothGatt.GATT_SUCCESS) {
 				this.mHandler.post(new Runnable(){
@@ -1112,12 +996,6 @@ public class BleDeviceMgr implements LeScanCallback{
 	public Context getApplicationContext() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-	public void PostUIRun(Runnable runner,int ms){
-		this.mHandler.postDelayed(runner,ms);
-	}
-	public void RemoveUIRun(Runnable runner){
-		this.mHandler.removeCallbacks(runner);
 	}
 	private static BleDeviceMgr sMgr = null;
 	public static BleDeviceMgr CreateMgr(Context c){

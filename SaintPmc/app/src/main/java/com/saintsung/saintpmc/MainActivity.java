@@ -10,33 +10,27 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
-
+import android.graphics.Color;
 import android.os.Bundle;
-
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
-
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
-
 import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
-
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -51,23 +45,18 @@ import com.amap.api.maps.CameraUpdate;
 import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.LocationSource;
 import com.amap.api.maps.MapView;
-import com.amap.api.maps.UiSettings;
+import com.amap.api.maps.model.BitmapDescriptorFactory;
 import com.amap.api.maps.model.CameraPosition;
 import com.amap.api.maps.model.LatLng;
-
+import com.amap.api.maps.model.MyLocationStyle;
 import com.google.gson.Gson;
-
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.saintsung.saintpmc.asynctask.RetrofitRxAndroidHttp;
-
 import com.saintsung.saintpmc.bean.QueryBureauNumberBean2;
-
 import com.saintsung.saintpmc.bean.WorkOrderDataItemBean;
 import com.saintsung.saintpmc.bean.WorkOrderDealitBean;
 import com.saintsung.saintpmc.loading.LoginActivity;
-
 import com.saintsung.saintpmc.loading.User;
 import com.saintsung.saintpmc.loading.Utils;
 import com.saintsung.saintpmc.location.CheckPermissionsActivity;
@@ -87,45 +76,29 @@ import com.saintsung.saintpmc.lock.SetAllActivity;
 import com.saintsung.saintpmc.lock.User_Share;
 import com.saintsung.saintpmc.orderdatabase.DicCategoryBean;
 import com.saintsung.saintpmc.orderdatabase.DicLockSiteBean;
-
 import com.saintsung.saintpmc.orderdatabase.DoorAndMeterDataBase;
 import com.saintsung.saintpmc.orderdatabase.DoorAndMeterDataBase$Table;
 import com.saintsung.saintpmc.orderdatabase.LockInformation;
 import com.saintsung.saintpmc.orderdatabase.LstElecDeviceBean;
 import com.saintsung.saintpmc.orderdatabase.LstElecUserBean;
-
-import com.saintsung.saintpmc.orderdatabase.LstElecUserLockBean;
-
-import com.saintsung.saintpmc.orderdatabase.LstElecUserMeteringBean;
-
-import com.saintsung.saintpmc.orderdatabase.LstLookBean;
-
 import com.saintsung.saintpmc.orderdatabase.WorkOrderControData;
 import com.saintsung.saintpmc.orderdatabase.WorkOrderControData$Table;
-import com.saintsung.saintpmc.orderdatabase.WorkOrderDetailsBean;
-import com.saintsung.saintpmc.orderdatabase.WorkOrderDetailsBean$Table;
 import com.saintsung.saintpmc.tool.DataProcess;
 import com.saintsung.saintpmc.tool.ToastUtil;
-
 import com.saintsung.saintpmc.workorder.PicWorkOrderActivity;
 import com.saintsung.saintpmc.workorder.ScrapActivity;
-import com.saintsung.saintpmc.workorder.WorkOrderDetails2;
 import com.saintsung.saintpmc.workorder.WorkOrderDetailsItem;
 import com.saintsung.saintpmc.workorder.WorkOrderDetailsPic;
 import com.saintsung.saintpmc.workorder.mDetailsAdapter;
-import com.saintsung.saintpmc.workorder.mDetailsAdapterItem2;
-
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-
 import okhttp3.ResponseBody;
 import rx.functions.Action1;
 
@@ -157,7 +130,7 @@ import static com.saintsung.saintpmc.tool.DataProcess.*;
  */
 
 public class MainActivity extends CheckPermissionsActivity
-        implements NavigationView.OnNavigationItemSelectedListener, AMap.CancelableCallback, LocationSource, AMapLocationListener, ActivityCompat.OnRequestPermissionsResultCallback,View.OnClickListener{
+        implements NavigationView.OnNavigationItemSelectedListener, AMap.CancelableCallback, ActivityCompat.OnRequestPermissionsResultCallback, View.OnClickListener, AMapLocationListener, AMap.OnMapClickListener, LocationSource {
     public static Intent intentBluetoothLeService;
     public static BluetoothLeService bluetoothLeService;
     public static ServiceConnection mServiceConnection;
@@ -195,40 +168,48 @@ public class MainActivity extends CheckPermissionsActivity
     SharedPreferences.Editor editor;
     User_Share user_Share = new User_Share();
     //-----------------------------------------------------------这是一个分割线----------------------------------------------------------------------
-    private OnLocationChangedListener mListener;
+    private AMap mAMap;
     private final static int SCANNIN_GREQUEST_CODE = 1;
     private final static int SCANNIN_GREQUEST_CODE2 = 2;
     private ImageButton btnLocation;
     List<String[]> list = new LinkedList<>();
     private static final String ACTION = "android.provider.Telephony.SMS_RECEIVED";
     SharedPreferences mySharedPreferences;
-    private MapView mMap;
+    private MapView mapView;
     private AMap myAmap;
     private boolean isLocation = true;
     private Button upLock;
     public static boolean isDown;
     //存储经纬度的数据类型
     public static LatLng LatAndlon;
-    public AMapLocationClient mLocationClient = null;
-    // 声明mLocationOption对象
+    private LocationSource.OnLocationChangedListener mListener;
+    //声明mlocationClient对象
+    public AMapLocationClient mlocationClient;
+    //声明mLocationOption对象
     public AMapLocationClientOption mLocationOption = null;
-    public AMapLocationListener mLocationListener = new AMapLocationListener() {
-        @Override
-        public void onLocationChanged(AMapLocation amapLocation) {
-            if (amapLocation != null) {
-                if (amapLocation.getErrorCode() == 0) {
-                    // 定位成功回调信息，设置相关消息
-                    LatAndlon = new LatLng(amapLocation.getLatitude(),
-                            amapLocation.getLongitude());
-                } else {
-//                     显示错误信息ErrCode是错误码，errInfo是错误信息，详见错误码表。
-                    Log.e("AmapError", "location Error, ErrCode:"
-                            + amapLocation.getErrorCode() + ", errInfo:"
-                            + amapLocation.getErrorInfo());
-                }
-            }
-        }
-    };
+
+
+
+    //    public AMapLocationClient mLocationClient = null;
+//    // 声明mLocationOption对象
+//    public AMapLocationClientOption mLocationOption = null;
+//    public AMapLocationListener mLocationListener = new AMapLocationListener() {
+//        @Override
+//        public void onLocationChanged(AMapLocation amapLocation) {
+//            if (amapLocation != null) {
+//                if (amapLocation.getErrorCode() == 0) {
+//                    // 定位成功回调信息，设置相关消息
+//                    LatAndlon = new LatLng(amapLocation.getLatitude(),
+//                            amapLocation.getLongitude());
+//                } else {
+////                     显示错误信息ErrCode是错误码，errInfo是错误信息，详见错误码表。
+//                    Log.e("AmapError", "location Error, ErrCode:"
+//                            + amapLocation.getErrorCode() + ", errInfo:"
+//                            + amapLocation.getErrorInfo());
+//                }
+//            }
+//        }
+//    };
     private long exitTime = 0;
 
     @Override
@@ -289,6 +270,7 @@ public class MainActivity extends CheckPermissionsActivity
         }
 
     }
+
     private void MyThread4(final String dbtable, final String packet) {
         new Thread(new Runnable() {
             @Override
@@ -345,38 +327,38 @@ public class MainActivity extends CheckPermissionsActivity
 
     }
 
-    /**
-     * 查看app sha1 码
-     *
-     * @param context
-     * @return
-     */
-    @Nullable
-    public static String sHA1(Context context) {
-        try {
-            PackageInfo info = context.getPackageManager().getPackageInfo(
-                    context.getPackageName(), PackageManager.GET_SIGNATURES);
-            byte[] cert = info.signatures[0].toByteArray();
-            MessageDigest md = MessageDigest.getInstance("SHA1");
-            byte[] publicKey = md.digest(cert);
-            StringBuffer hexString = new StringBuffer();
-            for (int i = 0; i < publicKey.length; i++) {
-                String appendString = Integer.toHexString(0xFF & publicKey[i])
-                        .toUpperCase(Locale.US);
-                if (appendString.length() == 1)
-                    hexString.append("0");
-                hexString.append(appendString);
-                hexString.append(":");
-            }
-            String result = hexString.toString();
-            return result.substring(0, result.length() - 1);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+//    /**
+//     * 查看app sha1 码
+//     *
+//     * @param context
+//     * @return
+//     */
+//    @Nullable
+//    public static String sHA1(Context context) {
+//        try {
+//            PackageInfo info = context.getPackageManager().getPackageInfo(
+//                    context.getPackageName(), PackageManager.GET_SIGNATURES);
+//            byte[] cert = info.signatures[0].toByteArray();
+//            MessageDigest md = MessageDigest.getInstance("SHA1");
+//            byte[] publicKey = md.digest(cert);
+//            StringBuffer hexString = new StringBuffer();
+//            for (int i = 0; i < publicKey.length; i++) {
+//                String appendString = Integer.toHexString(0xFF & publicKey[i])
+//                        .toUpperCase(Locale.US);
+//                if (appendString.length() == 1)
+//                    hexString.append("0");
+//                hexString.append(appendString);
+//                hexString.append(":");
+//            }
+//            String result = hexString.toString();
+//            return result.substring(0, result.length() - 1);
+//        } catch (PackageManager.NameNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (NoSuchAlgorithmException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 
     private void initBlue() {
         // 文件保存信息
@@ -452,14 +434,6 @@ public class MainActivity extends CheckPermissionsActivity
         dialog.show();//显示一把
     }
 
-
-    private String getUpLook() {
-        byte[] byteLog = fileStream.fileStream(FileStream.log, FileStream.read, null);
-        String res = "L004" + MainActivity.IMEI + userId + "285436506" + "20170526082418" + "1";
-        res = CommonResources.createRequestPacket(res);
-        return res;
-    }
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -525,70 +499,39 @@ public class MainActivity extends CheckPermissionsActivity
     private void refreshAdapterData() {
         listAdapter.clear();
         final List<WorkOrderControData> peoples = new Select().from(WorkOrderControData.class).queryList();
-        for(int i=0;i<peoples.size();i++){
-            String orderNo=peoples.get(i).workOrderNumber;
+        for (int i = 0; i < peoples.size(); i++) {
+            String orderNo = peoples.get(i).workOrderNumber;
             listAdapter.add(orderNo);
         }
         adapter.notifyDataSetChanged();
     }
 
-    class MyLookUp extends AsyncTask<String, String, String> {
-        @SuppressWarnings("deprecation")
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            //open the dialog before the file was downloaded(点击之后,下载执行之前,设置进度条可见)
-            showDialog(DIALOG_DOWNLOAD_PROGRESS);
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            com.saintsung.saintpmc.asynctask.SocketConnect socketConnect = new com.saintsung.saintpmc.asynctask.SocketConnect();
-            return socketConnect.sendDate(getUpLook());
-        }
-
-        @Override
-        protected void onProgressUpdate(String... progress) {
-            mProgressDialog.setProgress(Integer.parseInt(progress[0]));
-        }
-
-        @SuppressWarnings("deprecation")
-        @Override
-        protected void onPostExecute(String result) {
-            dismissDialog(DIALOG_DOWNLOAD_PROGRESS);
-        }
-
-        @Override
-        protected void onCancelled() {
-            super.onCancelled();
-        }
-    }
 
     //---------------------------------------------------- 这是一个分割线-----------------------------
 
 
     TextView mYText;
-    LstLookBean lstLookBean;
-    LstElecUserLockBean lstElecUserLockBean;
+
     LstElecUserBean lstElecUserBean;
     LstElecDeviceBean lstElecDeviceBean;
     DicCategoryBean dicCategoryBean;
-    LstElecUserMeteringBean lstElecUserMeteringBean;
+
     DicLockSiteBean dicLockSiteBean = new DicLockSiteBean();
     int con = 0;
     LinearLayout moveUpDown;
-    ImageButton actUpMove,downMove,upMove,actDownMove;
+    ImageButton actUpMove, downMove, upMove, actDownMove;
     ListView myLockRecord;
     mDetailsAdapter adapter;
-    private List<String> listAdapter=new ArrayList<>();
+    private List<String> listAdapter = new ArrayList<>();
+
     private void initView() {
         RetrofitRxAndroidHttp retrofitRxAndroidHttp = new RetrofitRxAndroidHttp();
         List<DoorAndMeterDataBase> doorAndMeterDataBase = new Select().from(DoorAndMeterDataBase.class).queryList();
         for (DoorAndMeterDataBase doorAndMeterDataBase1 : doorAndMeterDataBase) {
             retrofitRxAndroidHttp.serviceConnect(MyApplication.getUrl(), doorAndMeterDataBase1.jsonStrInService, action2);
         }
-        List<LockInformation> lockInformations=new Select().from(LockInformation.class).queryList();
-        for(LockInformation lockInformation:lockInformations){
+        List<LockInformation> lockInformations = new Select().from(LockInformation.class).queryList();
+        for (LockInformation lockInformation : lockInformations) {
             lockInformation.delete();
         }
         String userName = MyApplication.getUserName();
@@ -596,9 +539,7 @@ public class MainActivity extends CheckPermissionsActivity
         dicCategoryBean = new DicCategoryBean();
         lstElecDeviceBean = new LstElecDeviceBean();
         lstElecUserBean = new LstElecUserBean();
-        lstElecUserLockBean = new LstElecUserLockBean();
-        lstLookBean = new LstLookBean();
-        lstElecUserMeteringBean = new LstElecUserMeteringBean();
+
         LockSetActivity.unlockType = LockSetActivity.unlockUser;
         //写入到文件中
         fileStream.fileStream(FileStream.unlockType, FileStream.write, LockSetActivity.unlockType.getBytes());
@@ -606,7 +547,7 @@ public class MainActivity extends CheckPermissionsActivity
         myPortSharedPreferences = this.getSharedPreferences("port", Context.MODE_PRIVATE);
         mySharedPreferences = getSharedPreferences("orderInfo",
                 Activity.MODE_PRIVATE);
-        mMap = (MapView) findViewById(R.id.mMap);
+        mapView = (MapView) findViewById(R.id.mMap);
         moveUpDown = (LinearLayout) findViewById(R.id.move_up_down);
         actUpMove = (ImageButton) findViewById(R.id.act_up_move);
         downMove = (ImageButton) findViewById(R.id.down_move);
@@ -627,22 +568,22 @@ public class MainActivity extends CheckPermissionsActivity
             }
         });
 
-        btnLocation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (LatAndlon == null) {
-                    new ToastUtil().getToast(MainActivity.this, "正在获取地理位置,请稍后...");
-                } else {
-                    Toast.makeText(MainActivity.this, "当前经纬度" + LatAndlon.latitude + "    -" + LatAndlon.longitude, Toast.LENGTH_LONG).show();
-                    changeCamera(CameraUpdateFactory
-                            .newCameraPosition(new CameraPosition(LatAndlon, 18,
-                                    30, 0)), MainActivity.this);
-                }
-            }
-        });
-
+//        btnLocation.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (LatAndlon == null) {
+//                    new ToastUtil().getToast(MainActivity.this, "正在获取地理位置,请稍后...");
+//                } else {
+//                    Toast.makeText(MainActivity.this, "当前经纬度" + LatAndlon.latitude + "    -" + LatAndlon.longitude, Toast.LENGTH_LONG).show();
+//                    changeCamera(CameraUpdateFactory
+//                            .newCameraPosition(new CameraPosition(LatAndlon, 18,
+//                                    30, 0)), MainActivity.this);
+//                }
+//            }
+//        });
         mYText = (TextView) findViewById(R.id.myText);
     }
+
     private String getWorkOrderDealitStr(String number) {
         Gson gson = new Gson();
         String sign = "";
@@ -655,6 +596,7 @@ public class MainActivity extends CheckPermissionsActivity
         workOrderDealitBean.setSign(MD5.toMD5(workOrderDealitBean.getOptCode() + workOrderDealitBean.getWorkOrderNo() + workOrderDealitBean.getNums() + workOrderDealitBean.getCntNum() + workOrderDealitBean.getLockNum() + workOrderDealitBean.getData()));
         return gson.toJson(workOrderDealitBean);
     }
+
     private Action1<ResponseBody> action3 = new Action1<ResponseBody>() {
 
         @Override
@@ -666,8 +608,9 @@ public class MainActivity extends CheckPermissionsActivity
             }
         }
     };
+
     private void dataProces(String string) {
-        Log.e("TAG","sss:"+string);
+        Log.e("TAG", "sss:" + string);
         Gson gson = new Gson();
         WorkOrderDealitBean workOrderDealitBean = gson.fromJson(string, WorkOrderDealitBean.class);
         if (workOrderDealitBean.getResult().equals("0000")) {
@@ -684,14 +627,15 @@ public class MainActivity extends CheckPermissionsActivity
                 lockInformation.type = workOrderDataItemBeanList.get(j).getType();
                 lockInformation.starTime = workOrderControData1.startTime;
                 lockInformation.endTime = workOrderControData1.endTime;
-                lockInformation.workOrderNumber=workOrderControData1.workOrderNumber;
+                lockInformation.workOrderNumber = workOrderControData1.workOrderNumber;
                 lockInformation.insert();
             }
-            Intent intent=new Intent(MainActivity.this,WorkOrderDetailsItem.class);
-            intent.putExtra("workOrder",workOrderControData1.workOrderNumber);
+            Intent intent = new Intent(MainActivity.this, WorkOrderDetailsItem.class);
+            intent.putExtra("workOrder", workOrderControData1.workOrderNumber);
             startActivity(intent);
         }
     }
+
     private Action1<ResponseBody> action2 = new Action1<ResponseBody>() {
         @Override
         public void call(ResponseBody responseBody) {
@@ -737,8 +681,8 @@ public class MainActivity extends CheckPermissionsActivity
             if (workOrderControData1 == null) {
                 workOrderControData.workOrderNumber = workOrderBean.getData().get(i).getWorkOrderNo();
                 workOrderControData.workOrderState = workOrderBean.getData().get(i).getWorkState();
-                workOrderControData.startTime=workOrderBean.getData().get(i).getStartTime();
-                workOrderControData.endTime=workOrderBean.getData().get(i).getEndTime();
+                workOrderControData.startTime = workOrderBean.getData().get(i).getStartTime();
+                workOrderControData.endTime = workOrderBean.getData().get(i).getEndTime();
                 Date date = new Date();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 workOrderControData.workTime = sdf.format(date);
@@ -746,8 +690,8 @@ public class MainActivity extends CheckPermissionsActivity
             } else {
                 workOrderControData.workOrderNumber = workOrderBean.getData().get(i).getWorkOrderNo();
                 workOrderControData.workOrderState = workOrderBean.getData().get(i).getWorkState();
-                workOrderControData.startTime=workOrderBean.getData().get(i).getStartTime();
-                workOrderControData.endTime=workOrderBean.getData().get(i).getEndTime();
+                workOrderControData.startTime = workOrderBean.getData().get(i).getStartTime();
+                workOrderControData.endTime = workOrderBean.getData().get(i).getEndTime();
                 Date date = new Date();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 workOrderControData.workTime = sdf.format(date);
@@ -766,33 +710,47 @@ public class MainActivity extends CheckPermissionsActivity
         workOrderBean.setOptUserNumber(MyApplication.getUserId());
         workOrderBean.setEndTime("0000-00-00");
         workOrderBean.setStartTime("0000-00-00");
-        sign = com.saintsung.saintpmc.lock.MD5.toMD5(workOrderBean.getOptCode() + workOrderBean.getOptUserNumber() +workOrderBean.getStartTime()+workOrderBean.getEndTime()+ workOrderBean.getData());
+        sign = com.saintsung.saintpmc.lock.MD5.toMD5(workOrderBean.getOptCode() + workOrderBean.getOptUserNumber() + workOrderBean.getStartTime() + workOrderBean.getEndTime() + workOrderBean.getData());
         workOrderBean.setSign(sign);
         return gson.toJson(workOrderBean);
     }
-    private void initMap(Bundle savedInstanceState) {
-        mMap.onCreate(savedInstanceState);
-        myAmap = mMap.getMap();
-        UiSettings mUiSettings = myAmap.getUiSettings();
-        mUiSettings.setScaleControlsEnabled(true);
-        myAmap.setLocationSource(this);
-        mUiSettings.setZoomControlsEnabled(false);
-        myAmap.moveCamera(CameraUpdateFactory.zoomTo(18));
-//        mUiSettings.setMyLocationButtonEnabled(true);
-        myAmap.setMyLocationEnabled(true);
-        // 初始化定位
-        mLocationClient = new AMapLocationClient(getApplicationContext());
-        // 设置定位回调监听
-        mLocationClient.setLocationListener(mLocationListener);
-        // 初始化定位参数
-        mLocationOption = new AMapLocationClientOption();
-        // 设置定位参数
-        mLocationClient.setLocationOption(mLocationOption);
-        // 启动定位
-        mLocationClient.startLocation();
-
+    void init() {
+        if (mAMap == null) {
+            mAMap = mapView.getMap();
+            mAMap.getUiSettings().setRotateGesturesEnabled(false);
+            mAMap.moveCamera(CameraUpdateFactory.zoomBy(6));
+            setUpMap();
+        }
     }
-
+    private void initMap(Bundle savedInstanceState) {
+        mapView = (MapView) findViewById(R.id.mMap);
+        mapView.onCreate(savedInstanceState);// 此方法必须重写
+        init();
+    }
+    /**
+     * 设置一些amap的属性
+     */
+    private void setUpMap() {
+        mAMap.setOnMapClickListener(this);
+        mAMap.setLocationSource(this);// 设置定位监听
+        mAMap.getUiSettings().setMyLocationButtonEnabled(true);// 设置默认定位按钮是否显示
+        // 自定义系统定位蓝点
+        MyLocationStyle myLocationStyle = new MyLocationStyle();
+        // 自定义定位蓝点图标
+        myLocationStyle.myLocationIcon(
+                BitmapDescriptorFactory.fromResource(R.drawable.gps_point));
+        // 自定义精度范围的圆形边框颜色
+        myLocationStyle.strokeColor(Color.argb(0, 0, 0, 0));
+        // 自定义精度范围的圆形边框宽度
+        myLocationStyle.strokeWidth(0);
+        // 设置圆形的填充颜色
+        myLocationStyle.radiusFillColor(Color.argb(0, 0, 0, 0));
+        // 将自定义的 myLocationStyle 对象添加到地图上
+        mAMap.setMyLocationStyle(myLocationStyle);
+        mAMap.setMyLocationEnabled(true);// 设置为true表示显示定位层并可触发定位，false表示隐藏定位层并不可触发定位，默认是false
+        // 设置定位的类型为定位模式 ，可以由定位、跟随或地图根据面向方向旋转几种
+        mAMap.setMyLocationType(AMap.LOCATION_TYPE_LOCATE);
+    }
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -827,9 +785,7 @@ public class MainActivity extends CheckPermissionsActivity
                         editor.putString(user_Share.def_AutoConnect, "1");
                         editor.commit();
                     }
-
                     //连接后发送了更改开锁类型0x44
-
                     Intent intent = new Intent(getBaseContext(), DeviceService.class);
                     intent.setAction(SetActivity0.unlock_bluetooth);
                     //				Intent intent = new Intent(getApplicationContext(),LockerProcessAtivity.class);
@@ -900,7 +856,7 @@ public class MainActivity extends CheckPermissionsActivity
     @Override
     protected void onStart() {
         super.onStart();
-        mLocationClient.startLocation();
+//        mLocationClient.startLocation();
     }
 
 
@@ -908,7 +864,7 @@ public class MainActivity extends CheckPermissionsActivity
     protected void onResume() {
         // TODO Auto-generated method stub
         super.onResume();
-        mMap.onResume();
+        mapView.onResume();
 
     }
 
@@ -916,14 +872,14 @@ public class MainActivity extends CheckPermissionsActivity
     protected void onPause() {
         // TODO Auto-generated method stub
         super.onPause();
-        mMap.onPause();
+        mapView.onPause();
     }
 
     @Override
     protected void onDestroy() {
         // TODO Auto-generated method stub
         super.onDestroy();
-        mMap.onDestroy();
+        mapView.onDestroy();
     }
 
     //定位完成回调
@@ -937,41 +893,56 @@ public class MainActivity extends CheckPermissionsActivity
 
 
     @Override
-    public void activate(OnLocationChangedListener listener) {
-        mListener = listener;
-        if (mLocationClient == null) {
-            mLocationClient = new AMapLocationClient(this);
-            mLocationOption = new AMapLocationClientOption();
-            //设置定位监听
-            mLocationClient.setLocationListener(this);
-            //设置为高精度定位模式
-            mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
-            //设置定位参数
-            mLocationClient.setLocationOption(mLocationOption);
-            // 此方法为每隔固定时间会发起一次定位请求，为了减少电量消耗或网络流量消耗，
-            // 注意设置合适的定位时间的间隔（最小间隔支持为2000ms），并且在合适时间调用stopLocation()方法来取消定位请求
-            // 在定位结束后，在合适的生命周期调用onDestroy()方法
-            // 在单次定位情况下，定位无论成功与否，都无需调用stopLocation()方法移除请求，定位sdk内部会移除
-            mLocationClient.startLocation();
+    public void onLocationChanged(AMapLocation amapLocation) {
+        if (amapLocation != null) {
+            if (amapLocation.getErrorCode() == 0) {
+                //定位成功回调信息，设置相关消息
+                LatAndlon = new LatLng(amapLocation.getLatitude(),
+                            amapLocation.getLongitude());
+                mListener.onLocationChanged(amapLocation);// 显示系统小蓝点
+                changeCamera(CameraUpdateFactory
+                        .newCameraPosition(new CameraPosition(LatAndlon, 18,
+                                30, 0)), this);
+            } else {
+                //显示错误信息ErrCode是错误码，errInfo是错误信息，详见错误码表。
+                Log.e("AmapError","location Error, ErrCode:"
+                        + amapLocation.getErrorCode() + ", errInfo:"
+                        + amapLocation.getErrorInfo());
+            }
         }
+    }
 
+    @Override
+    public void onMapClick(LatLng latLng) {
+
+    }
+
+    @Override
+    public void activate(OnLocationChangedListener onLocationChangedListener) {
+        mListener = onLocationChangedListener;
+        if (mlocationClient == null) {
+            mlocationClient = new AMapLocationClient(getApplicationContext());
+            mLocationOption = new AMapLocationClientOption();
+            // 设置定位监听
+            mlocationClient.setLocationListener(this);
+            // 设置为高精度定位模式
+            mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
+            // 只是为了获取当前位置，所以设置为单次定位
+            mLocationOption.setOnceLocation(true);
+            // 设置定位参数
+            mlocationClient.setLocationOption(mLocationOption);
+            mlocationClient.startLocation();
+        }
     }
 
     @Override
     public void deactivate() {
         mListener = null;
-        if (mLocationClient != null) {
-            mLocationClient.stopLocation();
-            mLocationClient.onDestroy();
+        if (mlocationClient != null) {
+            mlocationClient.stopLocation();
+            mlocationClient.onDestroy();
         }
-        mLocationClient = null;
-    }
-
-    @Override
-    public void onLocationChanged(AMapLocation aMapLocation) {
-        if (mListener != null) {
-            mListener.onLocationChanged(aMapLocation);// 显示系统小蓝点
-        }
+        mlocationClient = null;
     }
 }
 

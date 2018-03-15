@@ -82,12 +82,11 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.functions.Action1;
 
-import static com.saintsung.saintpmc.lock.SocketActivity.string;
+
 import static com.saintsung.saintpmc.tool.ToastUtil.isNetworkAvailable;
 
 public class LoginActivity extends CheckPermissionsActivity implements OnClickListener,
         OnItemClickListener, OnDismissListener {
-    protected static final String TAG = "LoginActivity";
     private LinearLayout mLoginLinearLayout;
     private LinearLayout mUserIdLinearLayout;
     private Animation mTranslate;

@@ -33,6 +33,7 @@ import rx.schedulers.Schedulers;
 
 public class RetrofitRxAndroidHttp {
     private static final MediaType CONTENT_TYPE = MediaType.parse("application/json; charset=utf-8");
+
     public void serviceConnect(String url, String result, Action1<ResponseBody> action1) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(url)
@@ -46,7 +47,6 @@ public class RetrofitRxAndroidHttp {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(action1, onErrorAction);
     }
-
     public void serviceFileConnect(String url, String filePath, String result, Callback callback) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(url)
