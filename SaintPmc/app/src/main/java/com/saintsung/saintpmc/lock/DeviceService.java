@@ -25,7 +25,6 @@ import com.saintsung.saintpmc.MainActivity;
 import com.saintsung.saintpmc.MyApplication;
 import com.saintsung.saintpmc.R;
 
-import com.saintsung.saintpmc.asynctask.QueryAddressTask;
 import com.saintsung.saintpmc.asynctask.RetrofitRxAndroidHttp;
 import com.saintsung.saintpmc.bean.LockLogBean;
 import com.saintsung.saintpmc.bean.LockLogUpServiceBean;
@@ -395,13 +394,6 @@ public class DeviceService extends Service implements DeviceClient, CommomInterf
                     if (b != null) {
                         // send open screw
                         if (MainActivity.handLockNumber != null) {
-                        /*
-                         * //send test byte[] cmdBytes =
-						 * Command.getInstance().AppSendLockerKey
-						 * (MCUCommand.opcode_open_screw
-						 * ,MainActivity.handLockNumber,"000359168168000",0);
-						 * mDevice.Write(FileStream.write,cmdBytes);
-						 */
                             unlockScrew = b.getString(ScrewOperType);
                             ScrewNum = MainActivity.handLockNumber;
                             if (unlockScrew != null && unlockScrew.length() > 0 && unlockScrew.equals("Open")) {
@@ -435,54 +427,6 @@ public class DeviceService extends Service implements DeviceClient, CommomInterf
                                 byte[] cmdBytes = Command.getInstance().AppSendClose();
                                 mDevice.Write(FileStream.write, cmdBytes);
                             }
-
-						/*
-						 * //在线开锁方式 boolean wlanFlag =
-						 * NetworkConnect.checkNet(getApplicationContext()); if
-						 * (wlanFlag) {
-						 * download_single_lock_sn(MainActivity.handLockNumber,
-						 * new IListener() {
-						 *
-						 * @Override public void dataComing(byte[] bData) { //
-						 * TODO Auto-generated method stub addLog((byte) 0,
-						 * "dataComing:" + new String(bData)); int startI = -1;
-						 * int endI = -1; String recv = new String(bData); if
-						 * ((startI = recv.indexOf("true")) != -1) { endI =
-						 * recv.indexOf("endop", startI); String[] key_lockType
-						 * = recv.split("\\|"); final String pwd =
-						 * key_lockType[0]; final String lockType =
-						 * key_lockType[1]; addLog((byte) 0, "dataComing+pwd:" +
-						 * new String(bData)); byte[] cmdBytes =
-						 * Command.getInstance().AppSendLockerKey(MCUCommand.
-						 * opcode_open_screw, MainActivity.handLockNumber, pwd,
-						 * lockType, 0); addLog((byte) 0, "dataComing+send:" +
-						 * new String(cmdBytes));
-						 * mDevice.Write(FileStream.write, cmdBytes); } else {
-						 * // [[wk switch (mAutoTest) { case
-						 * LockSetActivity.unlockLogin: { addLog((byte) 0,
-						 * "该用户未实时关联此锁!");
-						 *
-						 * } break; case LockSetActivity.unlock_screw: {
-						 * addLog((byte) 0, "该用户未实时关联此螺丝!"); } break; case
-						 * LockSetActivity.unlock_well: { addLog((byte) 0,
-						 * "该用户未实时关联此井盖!"); } break; default: { addLog((byte) 0,
-						 * "未定义操作方式!"); } break; } // ]] } } }); } else {
-						 * addLog((byte) 0, "请连接网络后,再进行其他操作!"); }
-						 */
-						/*
-						 * // readKey(MainActivity.handLockNumber, new
-						 * OnReadKey() {
-						 *
-						 * @Override public void On(String key, Exception e) {
-						 * // TODO Auto-generated method stub if(e == null){
-						 * byte cmd = 0; if(key.length() == 15){ cmd =
-						 * MCUCommand.opcode_open_screw; }else{ cmd =
-						 * MCUCommand.OPCODE_OPEN_LOCK; } byte[] cmdBytes =
-						 * Command
-						 * .getInstance().AppSendLockerKey(cmd,MainActivity
-						 * .handLockNumber,key,0);
-						 * mDevice.Write(FileStream.write,cmdBytes); } } });
-						 */
                         }
                     }
                 }
@@ -727,9 +671,6 @@ public class DeviceService extends Service implements DeviceClient, CommomInterf
     Runnable mAutoReconnectRunnable = new Runnable() {
         @Override
         public void run() {
-/*		20170913
-		//	DeviceService.this.autoReconnect();
-*/
         }
     };
 
@@ -763,16 +704,6 @@ public class DeviceService extends Service implements DeviceClient, CommomInterf
                 onConnectBle();
             }
         }, 3000);//3秒后执行Runnable中的run方法
-/*
-		if (this.mDevice != null) {
-			this.mDevice.SetClient(DeviceService.this);
-			this.mDevice.Connect();
-		}
-*/
-/*
-		String url = "http://cgi.im.qq.com/cgi-bin/cgi_svrtime";
-		fun_getStandardDate(url);
-*/
     }
 
     //连接蓝牙
@@ -861,24 +792,6 @@ public class DeviceService extends Service implements DeviceClient, CommomInterf
         i.putExtra(DeviceService.EXTRA_STATUS, status);
         this.sendBroadcast(i);
     }
-
-    void broadcastStatus(int status, MCUCommand cmd) {
-        Intent i = new Intent();
-        i.setAction(ACTION_DEVICE_STATUS);
-        // [[wk
-        i.putExtra(EXTRA_NAME, this.mLastDeviceName);
-        // ]]
-        i.putExtra(EXTRA_ADDRESS, this.mLastAddress);
-        i.putExtra(EXTRA_TEST_TIMES, this.mTestTimes);
-        i.putExtra(EXTRA_OK_TIMES, this.mOkTimes);
-        i.putExtra(EXTRA_FAIL_TIMES, this.mFailTimes);
-        i.putExtra(EXTRA_START_TIME, this.mStartTime);
-        i.putExtra(EXTRA_KEY_VALUE_TYPE, this.mBigOpen);
-        i.putExtra(EXTRA_AUTO_TEST_TYPE, this.mAutoTest);
-        i.putExtra(DeviceService.EXTRA_STATUS, status);
-        this.sendBroadcast(i);
-    }
-
     void broadcastStatus(int status, ErrCode errCode, String errMsg) {
         Intent i = new Intent();
         i.setAction(ACTION_DEVICE_STATUS);
@@ -928,32 +841,6 @@ public class DeviceService extends Service implements DeviceClient, CommomInterf
 
         }
     };
-
-    public void getDate() {
-        String url = "http://cgi.im.qq.com/cgi-bin/cgi_svrtime";
-        OkHttpClient client = new OkHttpClient();
-        //创建一个request
-        final Request request = new Request.Builder().url(url).build();
-        // new call
-        Call call = client.newCall(request);
-        //请求加入调度
-        call.enqueue(new Callback() {
-
-            @Override
-            public void onResponse(Response arg0) throws IOException {
-                // TODO Auto-generated method stub
-                if (arg0.body().string() != null && arg0.body().string().length() > 0) {
-                    standardDate = arg0.body().string();
-                }
-            }
-
-            @Override
-            public void onFailure(Request arg0, IOException arg1) {
-                // TODO Auto-generated method stub
-
-            }
-        });
-    }
 
     @Override
     public void onConnected() {
@@ -1027,35 +914,6 @@ public class DeviceService extends Service implements DeviceClient, CommomInterf
         }
     };
 
-    void autoReconnect() {
-        this.addLog((byte) 0, MCUCommand.reconnecting);
-        // 非手动断开，重启系统蓝牙模块，重连
-        this.mHandler.removeCallbacks(mAutoConnectDeviceRunnable);
-        this.mHandler.removeCallbacks(mAutoReconnectRunnable);
-        this.mHandler.postDelayed(new Runnable() {
-
-            @Override
-            public void run() {
-                Context c = DeviceService.this.getApplicationContext();
-                DeviceService that = DeviceService.this;
-                BluetoothManager bluetoothManager = (BluetoothManager) c.getSystemService(Context.BLUETOOTH_SERVICE);
-                final BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
-                bluetoothAdapter.disable();
-                try {
-                    Thread.sleep(1000);
-                    bluetoothAdapter.enable();
-                    that.mHandler.postDelayed(that.mAutoConnectDeviceRunnable, mbtEabledCheckingTimer);
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                // 20秒后重试,一直重试直到手动断开
-                that.mHandler.postDelayed(that.mAutoReconnectRunnable, mDisableBtTimer);
-            }
-
-        }, 1000);
-    }
-
     @Override
     public void onDisconnected() {
 
@@ -1087,11 +945,6 @@ public class DeviceService extends Service implements DeviceClient, CommomInterf
                 }
                 // ]]
             }
-
-/*	20170913 取消自动连
-		//	this.mDevice = null;
-		//	this.autoReconnect();
-*/
         }
 
 
@@ -1116,11 +969,6 @@ public class DeviceService extends Service implements DeviceClient, CommomInterf
                 mFailTimes++;
             }
         }
-		/*
-		 * //[[wk FileStream fileStream=new FileStream();
-		 * fileStream.fileStream(FileStream.screw_log, FileStream.write,
-		 * ("开/关锁次数:"+mTestTimes+"\r\n").getBytes()); //]]
-		 */
     }
 
     String mLogs = "";
@@ -1206,7 +1054,7 @@ public class DeviceService extends Service implements DeviceClient, CommomInterf
             public void call(ResponseBody responseBody) {
                 try {
                     dataProce(responseBody.string(),on);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -1308,18 +1156,6 @@ public class DeviceService extends Service implements DeviceClient, CommomInterf
             }
         });
 
-    }
-
-
-    public void download_single_lock_sn(String number, QueryAddressTask.resultService listener) {
-        FileStream fileStream = new FileStream();
-        // get userNameValue
-        byte[] byt = fileStream.fileStream(FileStream.socket, FileStream.read, null);
-        String str = new String(byt);
-        String[] strBy = str.split(":");
-        QueryAddressTask queryAddressTask = new QueryAddressTask();
-        queryAddressTask.execute("GET_LOCK_INFO", strBy[0], number, "1");
-        queryAddressTask.setResultStr(listener);
     }
 
     boolean mOpenAction = false;

@@ -355,7 +355,7 @@ public class LockerProcessAtivity extends AppCompatActivity {
             for (int j = 0; j < workOrderDealitBean.getData().size(); j++) {
                 LockInformation lockInformation = new LockInformation();
                 lockInformation.lockNo = workOrderDataItemBeanList.get(j).getLockNo();
-                lockInformation.assetno = workOrderDataItemBeanList.get(j).getAssetno();
+                lockInformation.assetno = workOrderDataItemBeanList.get(j).getAssetNo();
                 lockInformation.optPwd = workOrderDataItemBeanList.get(j).getOptPwd();
                 lockInformation.pointX = workOrderDataItemBeanList.get(j).getPointX();
                 lockInformation.pointY = workOrderDataItemBeanList.get(j).getPointY();
@@ -394,9 +394,7 @@ public class LockerProcessAtivity extends AppCompatActivity {
         workOrderUpServiceBean.setSign(MD5.toMD5(workOrderUpServiceBean.getOptCode() + gson.toJson(workOrderUpServiceBean.getData())));
         return gson.toJson(workOrderUpServiceBean);
     }
-
     private Dialog mLoginingDlg;
-
     private void initLoginingDlg() {
         mLoginingDlg = new Dialog(this, R.style.loginingDlg);
         mLoginingDlg.setContentView(R.layout.logining_dlg2);

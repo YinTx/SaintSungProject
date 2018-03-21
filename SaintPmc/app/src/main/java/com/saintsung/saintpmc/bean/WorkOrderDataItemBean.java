@@ -6,7 +6,7 @@ package com.saintsung.saintpmc.bean;
 
 public class WorkOrderDataItemBean {
     private String lockNo;//锁号
-    private String assetno;//资产编号
+    private String assetNo;//资产编号
     private String optPwd;
     private String pointX;
     private String pointY;
@@ -21,12 +21,12 @@ public class WorkOrderDataItemBean {
         this.lockNo = lockNo;
     }
 
-    public String getAssetno() {
-        return assetno;
+    public String getAssetNo() {
+        return assetNo;
     }
 
-    public void setAssetno(String assetno) {
-        this.assetno = assetno;
+    public void setAssetNo(String assetNo) {
+        this.assetNo = assetNo;
     }
 
     public String getOptPwd() {

@@ -55,8 +55,8 @@ public class SocketActivity extends Activity {
 			if (loginType == null) {
 				//有socket 信息则直接跳转到登录界面
 				//				finish();
-				Intent intent = new Intent(SocketActivity.this, LoginActivity.class);
-				startActivity(intent);
+//				Intent intent = new Intent(SocketActivity.this, LoginActivity.class);
+//				startActivity(intent);
 			} else if (loginType != null && loginType.equals("SP")) {
 
 			}
@@ -98,8 +98,8 @@ public class SocketActivity extends Activity {
 			//write socketAddress
 			fileStream.fileStream(FileStream.socket, FileStream.write, string.getBytes());
 			finish();
-			Intent intent = new Intent(SocketActivity.this, LoginActivity.class);
-			startActivity(intent);
+//			Intent intent = new Intent(SocketActivity.this, LoginActivity.class);
+//			startActivity(intent);
 
 		}
 	}

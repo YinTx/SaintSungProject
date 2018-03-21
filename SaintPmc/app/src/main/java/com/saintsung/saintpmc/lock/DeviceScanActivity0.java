@@ -180,18 +180,6 @@ public class DeviceScanActivity0 extends AppCompatActivity implements BleDeviceM
 		}
 	};
 
-	String getTopActivity() {
-		String state = "";
-		//get ActivityManager
-		ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-		//one
-		List<RunningTaskInfo> tasks = activityManager.getRunningTasks(1);
-		if (tasks.size() > 0) {
-			state = tasks.get(0).topActivity.getClassName();
-		}
-		//split one by one
-		return state;
-	}
 
 	class StatusOnClickListener implements OnClickListener {
 		DeviceScanActivity0 that = DeviceScanActivity0.this;
@@ -241,15 +229,10 @@ public class DeviceScanActivity0 extends AppCompatActivity implements BleDeviceM
 		}
 
 	}
-
-	//[[cxq
 	SharedPreferences mySharedPreferences;
 	SharedPreferences.Editor editor;
 	User_Share user_Share = new User_Share();
 	private int i_connect = 0; //连接
-
-	//	]]
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -431,13 +414,6 @@ public class DeviceScanActivity0 extends AppCompatActivity implements BleDeviceM
 		this.startService(i);
 	}
 
-	void getDevice() {
-		Intent i = new Intent();
-		i.setClass(this, DeviceService.class);
-		i.setAction(DeviceService.ACTION_GETDEVICE);
-		this.startService(i);
-	}
-
 	@Override
 	protected void onResume() {
 		/*
@@ -493,10 +469,12 @@ public class DeviceScanActivity0 extends AppCompatActivity implements BleDeviceM
 		super.onDestroy();
 	}
 
+	@SuppressLint("RestrictedApi")
 	private void scanLeDevice(final boolean enable) {
 		if (enable) {
 			// 停止后一个预定义的扫描周期扫描。
 			mHandler.postDelayed(new Runnable() {
+				@SuppressLint("RestrictedApi")
 				@Override
 				public void run() {
 					mScanning = false;
@@ -545,15 +523,6 @@ public class DeviceScanActivity0 extends AppCompatActivity implements BleDeviceM
 			}
 		}
 		if (found == false) {
-			//change before
-			/*
-			map.put("name", name);
-			map.put("address",address);
-			map.put("status","连接");
-			listItem.add(map);
-			*/
-			// 	  		 /*
-			//[[wk change
 			FileStream fileStream = new FileStream();
 			byte[] byteArray = fileStream.fileStream(FileStream.connectRecord, FileStream.read, null);
 			if (byteArray.length != 0 && new String(byteArray).equals(address)) {
@@ -611,22 +580,5 @@ public class DeviceScanActivity0 extends AppCompatActivity implements BleDeviceM
 			break;
 		}
 	}
-	/*
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		// TODO Auto-generated method stub
-	    if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-	        //check Bluetooth connected state
-	    	if (MainActivity.connect_state==MainActivity.CONNECTED ) {
-	    		Intent intent=new Intent();
-				intent.setClass(getBaseContext(), MainActivity.class);
-				startActivity(intent);
-			}
-	        return true;
-	    }
-		return super.onKeyDown(keyCode, event);
-	}
-	*/
-	//]]
 
 }

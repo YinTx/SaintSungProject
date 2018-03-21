@@ -13,6 +13,7 @@
 
         />
     <ImageButton
+        android:visibility="gone"
         android:id="@+id/mbtn_d"
         android:layout_margin="16dp"
         android:padding="12dp"
@@ -38,12 +39,12 @@
         android:text="L013"
         />
     <ImageButton
-        android:visibility="gone"
         android:id="@+id/act_up_move"
         android:background="@null"
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="10dp"
         android:src="@mipmap/main_upmove"
         />
 

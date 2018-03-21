@@ -2,9 +2,23 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <FrameLayout
+        android:visibility="gone"
+        android:id="@+id/goneNoSize"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+        <TextView
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="该用户没有工单"
+            />
+    </FrameLayout>
     <ListView
         android:id="@+id/workorderdetails"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     </ListView>
+
 </LinearLayout>

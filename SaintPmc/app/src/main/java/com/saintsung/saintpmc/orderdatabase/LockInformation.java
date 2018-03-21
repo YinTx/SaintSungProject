@@ -31,4 +31,6 @@ public class LockInformation extends BaseModel {
     public String starTime;
     @Column
     public String endTime;
+    @Column
+    public String workOrderNumber;
 }

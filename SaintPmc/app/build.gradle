@@ -2,10 +2,16 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
 android {
     signingConfigs {
+//        debug {
+//            keyAlias 'androiddebugkey'
+//            keyPassword 'android'
+//            storeFile file('F:/StudioWork/SaintSungProject/SaintPmc/debug.keystore')
+//            storePassword 'android'
+//        }
         debug {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
-            storeFile file('F:/StudioWork/SaintSungProject/SaintPmc/debug.keystore')
+            storeFile file('D:/GitProject/SaintSungProject/SaintPmc/debug.keystore')
             storePassword 'android'
         }
     }
@@ -21,6 +27,10 @@ android {
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+    dexOptions {
+        incremental true
+        javaMaxHeapSize "4g"
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -28,7 +38,11 @@ android {
         }
     }
 }
-
+//sourceSets {
+//    main {
+//        jniLibs.srcDirs = ['libs']
+//    }
+//}
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile "com.android.support:appcompat-v7:$rootProject.ext.supportVersion"
@@ -53,11 +67,10 @@ dependencies {
     compile 'com.orhanobut:logger:2.1.0'
     // 打印日志
     compile project(':common')
-
-    compile "net.qiujuer.genius:ui:$rootProject.ext.geniusVersion"
-    compile "net.qiujuer.genius:res:$rootProject.ext.geniusVersion"
-    compile "de.hdodenhof:circleimageview:$rootProject.ext.circleimageviewVersion"
-    compile "com.github.bumptech.glide:glide:$rootProject.ext.glideVersion"
-    compile "com.jakewharton:butterknife:$rootProject.ext.butterknifeVersion"
-    compile "com.jakewharton:butterknife-compiler:$rootProject.ext.butterknifeVersion"
+    //    compile "net.qiujuer.genius:ui:$rootProject.ext.geniusVersion"
+    //    compile "net.qiujuer.genius:res:$rootProject.ext.geniusVersion"
+    //    compile "de.hdodenhof:circleimageview:$rootProject.ext.circleimageviewVersion"
+    //    compile "com.github.bumptech.glide:glide:$rootProject.ext.glideVersion"
+    //    compile "com.jakewharton:butterknife:$rootProject.ext.butterknifeVersion"
+    //    compile "com.jakewharton:butterknife-compiler:$rootProject.ext.butterknifeVersion"
 }

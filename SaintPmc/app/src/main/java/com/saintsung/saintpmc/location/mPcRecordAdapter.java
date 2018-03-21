@@ -22,9 +22,10 @@ public class mPcRecordAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
     public WorkOrderBean list;
     public List<View> saveView = new ArrayList<>();
-
+    private Context context;
     public mPcRecordAdapter(Context context, WorkOrderBean list) {
         this.mInflater = LayoutInflater.from(context);
+        this.context=context;
         this.list = list;
     }
 

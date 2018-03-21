@@ -38,8 +38,13 @@ public class WorkOrderDetailsPic extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_workorderdetails);
         myListView= (ListView) findViewById(R.id.workorderdetails);
-       listAdapter= MyApplication.getWorkOrderBean();
+        listAdapter= MyApplication.getWorkOrderBean();
         mPcRecordAdapter adapter=new mPcRecordAdapter(this,listAdapter);
+        if(listAdapter.getData().size()==0){
+            findViewById(R.id.goneNoSize).setVisibility(View.INVISIBLE);
+        }else {
+            findViewById(R.id.goneNoSize).setVisibility(View.GONE);
+        }
         myListView.setAdapter(adapter);
         myListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
