@@ -715,9 +715,12 @@ public class MainActivity extends CheckPermissionsActivity
         return gson.toJson(workOrderBean);
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     Button wordOdown;
 =======
+=======
+>>>>>>> origin/master
     void init() {
         if (mAMap == null) {
             mAMap = mapView.getMap();
@@ -726,6 +729,9 @@ public class MainActivity extends CheckPermissionsActivity
             setUpMap();
         }
     }
+<<<<<<< HEAD
+>>>>>>> origin/master
+=======
 >>>>>>> origin/master
     private void initMap(Bundle savedInstanceState) {
         mapView = (MapView) findViewById(R.id.mMap);
